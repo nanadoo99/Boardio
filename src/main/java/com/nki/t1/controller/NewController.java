@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class NewController {
     @GetMapping("/admin")
     public String admin() {
+        // this is a change for git
         return "admin";
     }
 }
