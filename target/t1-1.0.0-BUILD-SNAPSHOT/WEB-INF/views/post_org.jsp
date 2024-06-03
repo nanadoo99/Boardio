@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <!DOCTYPE html>
 <script src="${pageContext.request.contextPath}/static/js/post.js"></script>
 
@@ -9,18 +8,13 @@
     if (failed == "CREATE") alert("등록 실패");
     if (failed == "UPDATE") alert("수정 실패");
     if (failed == "DELETE") alert("삭제 실패");
-
-    let mode = "${mode}";
 </script>
 
-<form action="" id="postForm" enctype="multipart/form-data">
+<form action="" id="postForm">
     <h2>게시물 <span id="mode"></span></h2>
     <input type="text" name="pno" value="${mode == "create"? 0 : postDto.pno}" readonly/>
     <input type="text" name="title" value="${postDto.title}"/>
     <textarea name="content" cols="30" rows="20">${postDto.content}</textarea>
-    <div id="file-section" style="display: none">
-        <input type="file" name="file">
-    </div>
     <button type="button" id="newBtn" class="btn" style="display: none;">새글쓰기</button>
     <button type="button" id="postBtn" class="btn" style="display: none;">등록</button>
     <c:if test='${postDto.uno == authUser.uno && mode == "read"}'>
@@ -31,7 +25,7 @@
     <button type="button" id="backBtn" class="btn" style="display: none;">돌아가기</button>
 </form>
 
-<div id="comment-section" style="display: none">
+<div id="comment-section">
     <h2>Comments</h2>
     <div id="comments"></div>
     <span id="comment-reply"></span>
@@ -43,30 +37,22 @@
 <script>
 
     $(document).ready(function () {
+        var mode = "${mode}"
 
-        if (mode === "create") {
-            alert("create");
+        if (mode == "create") {
             $('#mode').text("작성");
-            $('#comment-section').hide();
-            $('#file-section').show();
             $('#postBtn').show();
             $('#backBtn').show();
             $('input[name="title"]').attr("readonly", false);
             $('textarea[name="content"]').attr("readonly", false);
-        } else if (mode === "read") {
-            alert("read");
+        } else if (mode == "read") {
             $('#mode').text("읽기");
-            $('#comment-section').show();
-            $('#file-section').hide();
             $('#newBtn').show();
             $('#listBtn').show();
             $('input[name="title"]').attr("readonly", true);
             $('textarea[name="content"]').attr("readonly", true);
-            readComments();
-        } else if (mode === "update") {
+        } else if (mode == "update") {
             $('#mode').text("수정");
-            $('#comment-section').hide();
-            $('#file-section').show();
             $('#postBtn').show();
             $('#backBtn').show();
             $('input[name="title"]').attr("readonly", false);
@@ -83,7 +69,7 @@
                 if (!confirm("수정중이던 내용이 지워집니다.")) return;
             }
 
-            location.href = "<c:url value='/user/post/create'/>";
+            location.href = "<c:url value='/user/post/create'/>"
         });
 
         $('#postBtn').on("click", function () {
@@ -124,6 +110,8 @@
             }
         });
 
+        readComments();
+
         // 댓글 불러오기
         function readComments() {
             $.ajax({
@@ -143,7 +131,7 @@
                             comments += "   <span>";
                             comments += "       <a data-pcno='" + commentDto.pcno + "' data-uno='" + commentDto.uno + " 'data-userid='" + commentDto.userId + "'>" + commentDto.userId + "</a>";
                             comments += "   </span>";
-                            comments += "   <input type='text' id='cmtText" + commentDto.cno + "' value='" + commentDto.comment + "' readonly/>";
+                            comments += "   <input type='text' id='cmtInput" + commentDto.cno + "' value='" + commentDto.comment + "' readonly/>";
                             if (commentDto.uno == ${authUser.uno}) { // 댓글 작성자에게 보이는 버튼
                                 comments += "   <button id='cmtUpdateBtn" + commentDto.cno + "'>수정</button>";
                                 comments += "   <button id='cmtPostBtn" + commentDto.cno + "' style='display: none;'>등록</button>";
@@ -165,35 +153,12 @@
             });
         }
 
-        // 댓글 버튼 클릭
-        $('#comment-section').on('click', 'button', function () {
-            var cno = $(this).siblings('input[id^="cno"]').val();
-            var id = $(this).attr('id');
-
-            if (id.includes('cmtUpdateBtn')) {
-                toggleUpdate(cno);
-            } else if (id.includes('cmtPostBtn')) {
-                postComment(cno);
-            } else if (id.includes('cmtCancelBtn')) {
-                toggleUpdate(cno);
-            } else if (id.includes('cmtDeleteBtn')) {
-                deleteComment(cno);
-            }
-
-        });
-
         // 댓글 등록
         $('#createCmtBtn').on('click', function () {
-            alert("createCmtBtn clicked");
-            var pno = $('#pno').val();
+            var pno = ${postDto.pno};
             var comment = $('#comment-text').val();
             var pcno = $('#comment-reply').data('pcno');
             var uno = $('#comment-reply').data('uno');
-
-            if(comment == '' || comment == null) {
-                alert("댓글을 입력해주세요");
-                return;
-            }
 
             if(pcno != '' && pcno != null) {
                 var jsonData = JSON.stringify({
@@ -224,6 +189,25 @@
             });
         });
 
+        // 댓글 버튼 클릭
+        $('#comment-section').on('click', 'button', function () {
+            // var cno = $(this).closest('div').find('input[type="hidden"]').val();
+            var cno = $(this).siblings('input[id^="cno"]').val();
+            var pcno = $(this).siblings('input[id^="pcno"]').val();
+            var id = $(this).attr('id');
+
+            if (id.includes('cmtUpdateBtn')) {
+                toggleUpdate(cno);
+            } else if (id.includes('cmtPostBtn')) {
+                postComment(cno);
+            } else if (id.includes('cmtCancelBtn')) {
+                toggleUpdate(cno);
+            } else if (id.includes('cmtDeleteBtn')) {
+                deleteComment(cno);
+            }
+
+        });
+
         // 댓글 수정모드
         function toggleUpdate(cno) {
             var cmtText = 'cmtText' + cno;
@@ -239,7 +223,7 @@
                 $('#' + postBtn).show();
                 $('#' + cancelBtn).show();
                 $('#' + deleteBtn).hide();
-            } else { // 수정 모드 off
+            } else if (!$('#' + cmtText).attr('readonly')) { // 수정 모드 off
                 $('#' + cmtText).attr('readonly', true);
                 toggleCmtBtn(1);
                 $('#' + updateBtn).show();
@@ -249,26 +233,49 @@
             }
         }
 
+        // // 댓글 지우기 > 멘션 취소
+        // $('#comment-text').on('keydown', function(event) {
+        //     if (event.key === 'Backspace' && $(this).val() === '') {
+        //         cancelReply();
+        //     }
+        // });
+
+        // 멘션
+        $('#comment-section').on('click', 'a', function () {
+            var pcno = $(this).data('pcno');
+            var uno = $(this).data('uno');
+            var userId = $(this).data('userid');
+
+            $('#comment-reply').data('pcno', pcno).data('uno', uno);
+            $('#comment-reply').text(userId.toString());
+            $('#reply-cancel').show();
+        });
+
+        // 멘션 취소
+        $('#reply-cancel').on('click', function () {
+            cancelReply();
+        });
+
+        // 멘션 취소
+        function cancelReply() {
+            $('#comment-reply').removeData('pcno');
+            $('#comment-reply').removeData('uno');
+            $('#comment-reply').text(' ');
+            $('#reply-cancel').hide();
+        }
+
         // 댓글 수정
         function postComment(cno) {
+            // 전송
             var cmtText = 'cmtText' + cno;
-            var comment = $('#' + cmtText).val();
-
-            if(comment == '' || comment == null) {
-                alert("댓글을 입력해주세요");
-                return;
-            }
-
-            var jsonData = JSON.stringify({
-                cno: cno,
-                comment: comment
-            });
-
             $.ajax({
                 url: "<c:url value='/user/comment'/>",
                 type: 'PATCH',
                 contentType: 'application/json',
-                data: jsonData,
+                data: JSON.stringify({
+                    cno: cno,
+                    comment: $('#' + cmtText).val()
+                }),
                 success: function (response) {
                     toggleUpdate(cno);
                 },
@@ -294,30 +301,6 @@
                     readComments();
                 }
             });
-        }
-
-        // 멘션
-        $('#comment-section').on('click', 'a', function () {
-            var pcno = $(this).data('pcno');
-            var uno = $(this).data('uno');
-            var userId = $(this).data('userid');
-
-            $('#comment-reply').data('pcno', pcno).data('uno', uno);
-            $('#comment-reply').text(userId.toString());
-            $('#reply-cancel').show();
-        });
-
-        // 멘션 취소
-        $('#reply-cancel').on('click', function () {
-            cancelReply();
-        });
-
-        // 멘션 취소
-        function cancelReply() {
-            $('#comment-reply').removeData('pcno');
-            $('#comment-reply').removeData('uno');
-            $('#comment-reply').text(' ');
-            $('#reply-cancel').hide();
         }
 
         function toggleCmtBtn(chk) {

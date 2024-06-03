@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nki.t1.dao.FilesMapper">
+
+    <insert id="insertFile" parameterType="hashMap">
+        <selectKey keyProperty="fno" order="BEFORE" resultType="int">
+            SELECT ifnull(max(fno), 0) + 1 as new_fno from files
+        </selectKey>
+        INSERT INTO files(fno, pno, file_name_org, file_name_stored, size, created_at)
+        VALUES(#{fno}, #{pno}, #{file_name_org}, #{file_name_stored}, #{size}, now())
+    </insert>
+<!--    읽기, 수정 및 삭제 필요-->
+</mapper>

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,9 @@ public class PostController {
     @GetMapping("/create")
     public String createGet(Model model) {
         model.addAttribute("mode", "create");
+
+        System.out.println("@@@@@ createGet()");
+        System.out.println("model = " + model);
         return "post";
     }
 
@@ -38,17 +42,20 @@ public class PostController {
         model.addAttribute("mode", "update");
         model.addAttribute("postDto", postDto);
         model.addAttribute("sc", sc);
+
+        System.out.println("@@@@@ updateMode()");
+        System.out.println("model = " + model);
         return "post";
     }
 
     @PostMapping("/create")
-    public String writePost(PostDto postDto, HttpServletRequest request, RedirectAttributes redirectAttributes, Model model) {
-        HttpSession session = request.getSession();
+    public String writePost(PostDto postDto, MultipartHttpServletRequest mpRequest, RedirectAttributes redirectAttributes, Model model) {
+        HttpSession session = mpRequest.getSession();
         try {
             UserDto userDto = (UserDto) session.getAttribute("authUser");
             postDto.setUno(userDto.getUno());
 
-            if (postService.createPost(postDto) != 1)
+            if (postService.createPost(postDto, mpRequest) != 1)
                 throw new Exception("Write Failed");
 
         } catch (Exception e) {
@@ -77,6 +84,9 @@ public class PostController {
             model.addAttribute("sc", sc);
             return "post";
         }
+
+        System.out.println("@@@@@ updatePost()");
+        System.out.println("model = " + model);
         return "redirect:/user/post/read" + sc.getQueryString() + "&pno=" + postDto.getPno();
 
     }
@@ -114,6 +124,9 @@ public class PostController {
             redirectAttributes.addFlashAttribute("failed", "READ");
             return "redirect:/user/post/list"+sc.getQueryString();
         }
+
+        System.out.println("@@@@@ readGet()");
+        System.out.println("model = " + model);
         return "post";
     }
 
