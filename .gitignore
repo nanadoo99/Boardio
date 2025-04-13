@@ -88,3 +88,5 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
+!/src/main/webapp/static/image/upload/tester1.jpg
+/src/main/java/com/nki/t1/old/

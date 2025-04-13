@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nki.t1.dao.BlockedPostsMapper">
+    <select id="selectBlocksByPno" parameterType="int" resultType="BlockedPostDto">
+        SELECT bp.bpno       AS bpno
+             , bp.pno        AS pno
+             , bp.brno       AS brno
+             , br.br_text    AS brText
+             , bp.uno        AS uno
+             , bp.blocked_at AS blockedAt
+        FROM blocked_posts bp
+                 LEFT JOIN block_reasons br ON bp.brno = br.brno
+        WHERE bp.pno = #{pno}
+          AND bp.del = 0
+    </select>
+
+    <insert id="blockPost" parameterType="BlockedPostDto">
+        <selectKey keyProperty="bpno" resultType="int" order="BEFORE">
+            SELECT ifnull(max(bpno), 0 ) + 1 FROM blocked_posts
+        </selectKey>
+        INSERT INTO blocked_posts (bpno, pno, brno, uno, memo, blocked_at)
+        VALUES (#{bpno}, #{pno}, #{brno}, #{uno}, #{memo}, now())
+    </insert>
+
+    <delete id="deleteBlockedPost" parameterType="BlockedPostDto">
+        UPDATE blocked_posts
+        SET del_uno    = #{uno}
+          , del        = 1
+          , deleted_at = now()
+        WHERE pno = #{pno}
+          AND del = 0
+    </delete>
+</mapper>

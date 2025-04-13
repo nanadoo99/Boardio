@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nki.t1.dao.ReportedCommentsMapper">
+    <select id="getReportsPage" parameterType="SearchCondition" resultType="ReportedCommentsDto">
+        SELECT rc.rcno        AS rcno
+             , rc.cno         AS cno
+             , rc.brno        AS brno
+             , br.br_text     AS brText
+             , rc.uno         AS reportUno
+             , ifnull(ru.id, '탈퇴한 사용자입니다.')          AS reportUserId
+             , rc.reported_at AS reportedAt
+
+        FROM reported_comments rc
+                 LEFT JOIN block_reasons br ON rc.brno = br.brno
+                 LEFT JOIN users ru ON rc.uno = ru.uno
+        WHERE rc.cno = #{idx1}
+          AND   rc.del = 0
+    </select>
+
+    <select id="countReports" parameterType="SearchCondition" resultType="int">
+        SELECT COUNT(rc.rcno)
+
+        FROM reported_comments rc
+                 LEFT JOIN block_reasons br ON rc.brno = br.brno
+                 LEFT JOIN users ru ON rc.uno = ru.uno
+        WHERE rc.cno = #{idx1}
+          AND   rc.del = 0
+        /*LIMIT #{offset}, #{pageSize}*/
+    </select>
+
+    <select id="getReportsGroupByBrno" parameterType="SearchCondition" resultType="ReportedCommentsDto">
+        SELECT rc.cno         AS cno
+             , rc.brno        AS brno
+             , COUNT(br.brno) AS brnoCnt
+             , br.br_text     AS brText
+
+        FROM reported_comments rc
+                 LEFT JOIN block_reasons br ON rc.brno = br.brno
+                 LEFT JOIN users ru ON rc.uno = ru.uno
+        WHERE rc.cno = #{idx1}
+        AND   rc.del = 0
+        GROUP BY rc.cno, br.brno, br.br_text
+    </select>
+
+    <select id="getReportsByUnoCno" parameterType="ReportedCommentsDto" resultType="ReportedCommentsDto">
+        SELECT rcno AS rcno
+             , cno  AS uno
+             , brno AS brno
+             , uno  AS reportUno
+
+        FROM reported_comments
+        WHERE cno = #{cno}
+          AND uno = #{reportUno}
+          AND del = 0
+    </select>
+
+    <insert id="reportByUnoCno" parameterType="ReportedCommentsDto">
+        <selectKey resultType="int" keyProperty="rcno" order="BEFORE">
+            SELECT ifnull(max(rcno), 0) + 1 FROM reported_comments
+        </selectKey>
+        INSERT INTO reported_comments (rcno, cno, brno, uno, reported_at)
+        VALUES (#{rcno}, #{cno}, #{brno}, #{reportUno}, now())
+    </insert>
+
+    <update id="updateReportByUnoCno" parameterType="ReportedCommentsDto">
+        UPDATE  reported_comments
+        SET     brno = #{brno}
+                ,reported_at = now()
+        WHERE cno = #{cno} AND uno = #{reportUno}
+        AND del = 0
+    </update>
+
+    <delete id="deleteReportByUnoCno" parameterType="ReportedCommentsDto">
+        UPDATE reported_comments
+        SET del        = 1
+          , delete_uno = #{deleteUno}
+          , deleted_at = now()
+        WHERE cno = #{cno}
+          AND uno = #{reportUno}
+          AND del = 0
+    </delete>
+</mapper>
