@@ -47,8 +47,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         String redirectURI = sessionUtils.getRedirectURI(request);
 
         // refererURL.contains("/profile") > redirectURI 사용
-        System.out.println("----- refererURL: " + refererURL);
-        System.out.println("----- redirectURI: " + redirectURI);
+        log.info("----- refererURL: " + refererURL);
+        log.info("----- redirectURI: " + redirectURI);
 
         if (refererURL != null) {
             if(refererURL.contains("/profile")) {

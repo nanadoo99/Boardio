@@ -109,7 +109,7 @@ public abstract class AbstractCkEditorFileService implements CkEditorFileService
         Iterator<FileDto> iterator = fileSet.iterator();
         if (iterator.hasNext()) {
             FileDto randomFile = iterator.next();
-            System.out.println("randomFile pno = " + randomFile.getPostIdx());
+            log.info("randomFile pno = " + randomFile.getPostIdx());
             fileCkEditorDao.deleteFileByPostIdx(randomFile.getPostIdx());
         }
 
