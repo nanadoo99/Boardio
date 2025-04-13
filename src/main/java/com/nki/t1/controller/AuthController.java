@@ -59,19 +59,19 @@ public class AuthController {
             if(sessionUserDto.getEmail().equals(newUserDto.getEmail()) && passwordEncoder.matches(newUserDto.getPassword(), sessionUserDto.getPassword())) {
                 // 로그인이 되어 있고, 입력값과 일치하는 경우 - 요청한 페이지
                 url = sessionUtils.getRedirectURI(request);
-                System.out.println("----- url1: " + url);
+                log.info("----- url1: " + url);
 
                 // 요청한 페이지가 /login 이거나, /signup 이라면, 기본페이지
                 if(url.contains("/login") || url.contains("/signup")) {
                     url = "/";
-                    System.out.println("----- url2: " + url);
+                    log.info("----- url2: " + url);
                 }
 
             } else { // 로그인이 되어 있고, 입력값과 불일치하는 경우 - 이전 페이지
                 log.error("Unmatched user info.");
                 throw new InvalidUserException(ErrorType.USER_UNMATCHED, newUserDto);
             }
-            System.out.println("----- url4: " + url);
+            log.info("----- url4: " + url);
 
             return "redirect:" + url;
         } catch (DataAccessException e) {

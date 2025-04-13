@@ -7,6 +7,7 @@ import com.nki.t1.exception.InvalidEmailException;
 import com.nki.t1.service.CustomUserDetailsService;
 import com.nki.t1.service.MailSendService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 // 메일
+@Slf4j
 @RequestMapping ("/auth/signup/mail")
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class MailController {
     // 가입 인증 메일을 보낸다
     @PostMapping("/send")
     public ResponseEntity<Map<String, Object>> sendAuthMail(@RequestBody EmailRequestDto emailRequestDto) {
-        System.out.println("이메일 인증 이메일 :"+ emailRequestDto.getEmail());
+        log.info("이메일 인증 이메일 :"+ emailRequestDto.getEmail());
         if(userDetailsService.emailChk(emailRequestDto.getEmail()) != 0) {
             throw new InvalidEmailException(ErrorType.USER_REG_EXIST);
         }

@@ -1,4 +1,4 @@
-package com.nki.t1.old;
+package com.nki.t1.utils;
 
 import com.nki.t1.dao.FileCkEditorDao;
 import org.springframework.beans.factory.annotation.Qualifier;

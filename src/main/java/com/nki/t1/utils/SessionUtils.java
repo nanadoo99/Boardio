@@ -65,10 +65,7 @@ public class SessionUtils {
     public static void setRefererURL(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         String refererURL = "/";
-
-        System.out.println("@@@@@ setRefererURL");
-        System.out.println("referer = " + referer); // 요청을 보낸 페이지
-
+        
         // 로그인 혹은 회원가입
         if (referer != null && !referer.contains("/login") && !referer.contains("/signup")) {
             refererURL = referer;
@@ -77,7 +74,7 @@ public class SessionUtils {
         HttpSession session = request.getSession();
         session.setAttribute("refererURL", refererURL);
         session.setMaxInactiveInterval(300); // 세션 유효 시간 설정 (5분)
-        System.out.println("----- session refererURL : " + refererURL);
+        log.info("----- session refererURL : " + refererURL);
     }
 
     public static String getRefererURL(HttpServletRequest request) {
@@ -89,7 +86,7 @@ public class SessionUtils {
             session.removeAttribute("refererURL"); // 값이 한 번 사용되면 삭제
         }
 
-        System.out.println("----- getRefererURL : " + refererURL);
+        log.info("----- getRefererURL : " + refererURL);
         return refererURL;
     }
 
@@ -97,7 +94,7 @@ public class SessionUtils {
         HttpSession session = request.getSession();
         session.setAttribute("redirectURI", uri);
         session.setMaxInactiveInterval(300); // 세션 유효 시간 설정 (5분)
-        System.out.println("----- session redirectURI : " + uri);
+        log.info("----- session redirectURI : " + uri);
     }
 
     public static String getRedirectURI(HttpServletRequest request) {
@@ -109,7 +106,7 @@ public class SessionUtils {
             session.removeAttribute("redirectURI"); // 값이 한 번 사용되면 삭제
         }
 
-        System.out.println("----- getRedirectURI : " + redirectURI);
+        log.info("----- getRedirectURI : " + redirectURI);
         return redirectURI;
     }
 
