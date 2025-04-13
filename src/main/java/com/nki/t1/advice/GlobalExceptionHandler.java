@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException e) {
         log.error(e.getMessage(), e);
 
-        System.out.println("GlobalExceptionHandler.handleValidationExceptions");
+        log.info("GlobalExceptionHandler.handleValidationExceptions");
         Map<String, String> errors = new HashMap<>();
         final String[] errorMessage = {"입력값이 올바르지 않습니다."};
 
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Map<String, Object>> handleMultipartException(MultipartException e) {
         log.error(e.getMessage(), e);
-        System.out.println("AdminAnnounceController.handleMultipartException");
+        log.info("AdminAnnounceController.handleMultipartException");
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("uploaded", 0);
         errorResponse.put("error", Map.of("message", ErrorType.FILE_SIZE_EXCEEDED.getMessage() + " 최대 1MB 가능")); // 사용자에게 표시될 메시지
@@ -108,10 +108,10 @@ public class GlobalExceptionHandler {
 
     private Object getResponse(HttpServletRequest request, RedirectAttributes reAttr, ErrorResponse errorResponse) {
         if (isAjax(request)) {
-            System.out.println("----- AJAX");
+            log.info("----- AJAX");
             return getErrorResponseEntity(errorResponse);
         } else {
-            System.out.println("----- General");
+            log.info("----- General");
             return getErrorString(request, reAttr, errorResponse);
         }
     }

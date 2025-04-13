@@ -1,9 +1,8 @@
-package com.nki.t1.old;
+package com.nki.t1.utils;
 
 import com.nki.t1.domain.ErrorType;
 import com.nki.t1.dto.FileDto;
 import com.nki.t1.exception.InvalidFileException;
-import com.nki.t1.utils.SizeParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 

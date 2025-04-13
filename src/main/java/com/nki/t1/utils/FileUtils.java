@@ -2,6 +2,7 @@ package com.nki.t1.utils;
 
 import com.nki.t1.domain.ErrorType;
 import com.nki.t1.exception.InvalidFileException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
@@ -10,13 +11,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 public class FileUtils {
 
     // UUID 생성
     public static String getUploadedName(MultipartFile file) {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String uploadedName = uuid + "_" + URLDecoder.decode(Objects.requireNonNull(file.getOriginalFilename()), StandardCharsets.UTF_8);
-        System.out.println("uploadedName = " + uploadedName);
+        log.info("uploadedName = " + uploadedName);
         return uploadedName;
     }
 
