@@ -3,12 +3,29 @@
   <component name="WebContextManager">
     <option name="state">
       <map>
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/announce/adminAnnounceCreate.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/announce" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/banner/adminBanner.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/banner" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post/adminPostList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post/adminPostRead.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post/postList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/post" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/userInfo/adminUserDetail.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/userInfo" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/userInfo/adminUserList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/userInfo" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/board.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/include/header.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/include" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/include/ready.jspf" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/include" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/index.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/layout.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/login.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/post.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/postRead.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/signup.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage/layout.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage/mycommentList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage/mypost.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage/mypostList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/mypage" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post/postCreate.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post/postList.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post/postRead.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/user/post" />
       </map>
     </option>
   </component>

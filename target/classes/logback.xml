@@ -10,4 +10,10 @@
     <logger name="jdbc.resultset" level="INFO"/>
     <logger name="jdbc.resultsettable" level="INFO"/>
     <logger name="jdbc.connection" level="INFO"/>
+
+    <!-- Spring Security Debug Logs -->
+    <logger name="org.springframework.security" level="DEBUG"/>
+
+    <!-- Spring Web Debug Logs -->
+    <logger name="org.springframework.web" level="DEBUG"/>
 </configuration>

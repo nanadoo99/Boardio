@@ -1,68 +1,55 @@
 package com.nki.t1.utils;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+
+import com.nki.t1.domain.ErrorType;
+import com.nki.t1.exception.InvalidFileException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-import com.nki.t1.dto.PostDto;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-@Component("fileUtils")
 public class FileUtils {
-    private static final String filePath = "C:\\Users\\nki\\Pictures\\t1\\"; // 파일이 저장될 위치
 
-    public List<Map<String, Object>> parseInsertFileInfo(PostDto postDto,
-                                                         MultipartHttpServletRequest mpRequest) throws Exception{
-
-		/*
-			Iterator은 데이터들의 집합체? 에서 컬렉션으로부터 정보를 얻어올 수 있는 인터페이스입니다.
-			List나 배열은 순차적으로 데이터의 접근이 가능하지만, Map등의 클래스들은 순차적으로 접근할 수가 없습니다.
-			Iterator을 이용하여 Map에 있는 데이터들을 while문을 이용하여 순차적으로 접근합니다.
-		*/
-
-        Iterator<String> iterator = mpRequest.getFileNames();
-
-        MultipartFile multipartFile = null;
-        String originalFileName = null;
-        String originalFileExtension = null;
-        String storedFileName = null;
-
-        List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
-        Map<String, Object> listMap = null;
-
-        int pno = postDto.getPno();
-
-        File file = new File(filePath);
-        if(file.exists() == false) {
-            file.mkdirs();
-        }
-
-        while(iterator.hasNext()) {
-            multipartFile = mpRequest.getFile(iterator.next());
-            if(multipartFile.isEmpty() == false) {
-                originalFileName = multipartFile.getOriginalFilename();
-                originalFileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                storedFileName = getRandomString() + originalFileExtension;
-
-                file = new File(filePath + storedFileName);
-                multipartFile.transferTo(file);
-                listMap = new HashMap<String, Object>();
-                listMap.put("pno", pno);
-                listMap.put("file_name_org", originalFileName);
-                listMap.put("file_name_stored", storedFileName);
-                listMap.put("size", multipartFile.getSize());
-                list.add(listMap);
-            }
-        }
-        return list;
+    // UUID 생성
+    public static String getUploadedName(MultipartFile file) {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String uploadedName = uuid + "_" + URLDecoder.decode(Objects.requireNonNull(file.getOriginalFilename()), StandardCharsets.UTF_8);
+        System.out.println("uploadedName = " + uploadedName);
+        return uploadedName;
     }
 
-    public static String getRandomString() {
-        return UUID.randomUUID().toString().replaceAll("-", "");
+    // 확장자 추출
+    public static String extractExt(String fileOrgNm) {
+        return fileOrgNm.substring(fileOrgNm.lastIndexOf(".") + 1);
     }
+
+    // 전체 경로 중 파일명만을 추출
+    public static String extractFileName(String fileFullPath) {
+        String[] parts = fileFullPath.split("[/\\\\]");
+        return parts[parts.length - 1];
+    }
+
+    // 크기 확인
+    public static void fileSizeCheck(MultipartFile file, long maxFileSize) {
+        if(file.getSize() > maxFileSize) {
+            throw new InvalidFileException(ErrorType.FILE_SIZE_EXCEEDED, "[파일명] " + file.getOriginalFilename() + "(" + SizeParser.longToString(file.getSize()) + "), 최대" + SizeParser.longToString(maxFileSize) + "까지 허용됩니다.");
+        }
+    }
+
+    // 전체 요청 크기 확인
+    public static void requestSizeCheck(List<MultipartFile> files, long maxReqeustSize, long maxFileSize) {
+
+        long requestSize = files.stream().mapToLong(MultipartFile::getSize).sum();
+
+        if(requestSize > maxReqeustSize) {
+            throw new InvalidFileException(ErrorType.FILE_TOTAL_SIZE_EXCEEDED,  "현재 요청 크기: " + SizeParser.longToString(requestSize) + ",최대" + SizeParser.longToString(maxReqeustSize) + "까지 허용됩니다.");
+        }
+
+        for(MultipartFile file : files) {
+            fileSizeCheck(file, maxFileSize);
+        }
+    }
+
 }

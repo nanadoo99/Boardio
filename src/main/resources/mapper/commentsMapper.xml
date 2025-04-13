@@ -4,40 +4,313 @@
 
 <mapper namespace="com.nki.t1.dao.CommentsMapper">
 
-    <select id="countComments" parameterType="int" resultType="int">
-        SELECT count(*)
+    <resultMap id="commentResultMap" type="com.nki.t1.dto.CommentDto">
+        <id property="cno" column="cno"/>
+        <result property="pno" column="pno"/>
+        <result property="postTitle" column="postTitle"/>
+        <result property="pcno" column="pcno"/>
+        <result property="uno" column="uno"/>
+        <result property="userId" column="userId"/>
+        <result property="comment" column="comment"/>
+        <result property="createdAt" column="createdAt"/>
+        <result property="updatedAt" column="updatedAt"/>
+        <result property="reportedAt" column="reportedAt"/>
+        <result property="blockedAt" column="blockedAt"/>
+        <result property="deletedAt" column="deletedAt"/>
+        <result property="del" column="del"/>
+        <result property="rcnoCnt" column="rcnoCnt"/>
+        <result property="contentState" column="contentState" javaType="com.nki.t1.domain.ContentState"
+                typeHandler="com.nki.t1.typeHandler.ContentStateTypeHandler"/>
+        <association property="reportedCommentsDto" javaType="com.nki.t1.dto.ReportedCommentsDto">
+            <id property="rcno" column="rcno"/>
+            <result property="reportUno" column="reportUno"/>
+            <result property="brno" column="brno"/>
+            <result property="brText" column="brText"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectByAdmin">
+        SELECT comments.cno                                                            AS cno,
+               comments.pno                                                            AS pno,
+               comments.uno                                                            AS uno,
+               ifnull(users.id, '탈퇴한 사용자입니다.')                                         AS userId,
+               posts.title                                                             AS postTitle,
+               ifnull(comments.pcno, comments.cno)                                     AS pcno,
+               comments.comment                                                        AS comment,
+               comments.created_at                                                     AS createdAt,
+               comments.updated_at                                                     AS updatedAt,
+               comments.del                                                            AS del,
+               comments.deleted_at                                                     AS deletedAt,
+               comments.state                                                          AS state,
+               (CASE
+                    WHEN rc.cno IS NULL AND bc.cno IS NULL THEN 'UNREPORTED_UNBLOCKED' /* 신고 x, 차단 x */
+                    WHEN bc.cno IS NOT NULL THEN 'BLOCKED' /* 차단된 게시글. */
+                    ELSE 'REPORTED' END) /* 신고된 게시글 */                                 AS contentState,
+               COUNT(DISTINCT rc.rcno)                                                 AS rcnoCnt,
+               bc.blocked_at                                                           AS blockedAt,
+               GROUP_CONCAT(DISTINCT(brb.br_text) ORDER BY br.brno ASC SEPARATOR ', ') AS brText,
+               rc.brno                                                                 AS brno
         FROM comments
+                 LEFT JOIN users ON comments.uno = users.uno
+                 LEFT JOIN posts ON comments.pno = posts.pno
+                 LEFT JOIN blocked_comments bc ON comments.cno = bc.cno AND bc.del = 0
+                 LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.del = 0
+                 LEFT JOIN block_reasons br ON rc.brno = br.brno
+                 LEFT JOIN block_reasons brb ON bc.brno = brb.brno
+    </sql>
+
+    <sql id="groupByAdmin">
+        GROUP BY
+            comments.cno,
+            comments.pno,
+            comments.uno,
+            users.id,
+            posts.title,
+            comments.pcno,
+            comments.comment,
+            comments.created_at,
+            comments.updated_at,
+            comments.del,
+            comments.deleted_at,
+            comments.state
+
+    </sql>
+
+    <sql id="conditionAdmin">
+        <if test="option3 == ''">
+            AND comments.created_at BETWEEN #{startDt} AND #{endDt}
+        </if>
+        <choose>
+            <when test="option2 == 'REPORTED'">/* 신고 처리대기 게시물만 */
+                AND rc.cno IS NOT NULL
+                AND bc.cno IS NULL
+            </when>
+            <when test="option2 == 'BLOCKED'">/* 차단된 게시물만 */
+                AND bc.cno IS NOT NULL
+            </when>
+        </choose>
+        <if test="keywordList != null and keywordList.size() > 0">
+            AND
+            <foreach item="keywordItem" collection="keywordList" open="(" separator="OR" close=")">
+                <choose>
+                    <when test="option1 == 'cno'"> <!-- 댓글 번호 -->
+                        comments.cno = #{keywordItem}
+                    </when>
+                    <when test="option1 == 'content'"> <!-- 댓글 내용 -->
+                        comments.comment LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'writerId'"> <!-- 작성자 -->
+                        users.id LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'writerUno'"> <!-- 작성자 -->
+                        users.uno LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'postTitle'"> <!-- 게시글 제목 -->
+                        posts.title LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <otherwise>
+                        (comments.cno LIKE concat('%', #{keywordItem}, '%')
+                        OR comments.comment LIKE concat('%', #{keywordItem}, '%')
+                        OR users.id LIKE concat('%', #{keywordItem}, '%')
+                        OR posts.title LIKE concat('%', #{keywordItem}, '%'))
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <select id="countCommentByAdmin" parameterType="SearchCondition" resultType="int">
+        SELECT COUNT(comments.cno)
+        FROM comments
+        LEFT JOIN users ON comments.uno = users.uno
+        LEFT JOIN posts ON comments.pno = posts.pno
+        LEFT JOIN blocked_comments bc ON comments.cno = bc.cno AND bc.del = 0
+        LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.del = 0
+        LEFT JOIN block_reasons br ON rc.brno = br.brno
+        LEFT JOIN block_reasons brb ON bc.brno = brb.brno
         WHERE comments.del = 0
-            AND pno = #{pno}
+        AND posts.del = 0
+        <include refid="conditionAdmin"/>
     </select>
 
-    <select id="selectComments" parameterType="int" resultType="CommentDto">
-        SELECT comments.cno                        AS cno,
-               comments.pno                        AS pno,
-               ifnull(comments.pcno, comments.cno) AS pcno,
-               comments.uno                        AS uno,
-               users.id                            AS userId,
-               comments.comment                    AS comment,
-               comments.created_at                 AS createdAt,
-               comments.updated_at                 AS updatedAt,
-                comments.del                        AS del
+    <select id="selectCommentPageByAdmin" parameterType="SearchCondition" resultMap="commentResultMap">
+        <include refid="selectByAdmin"/>
+        WHERE comments.del = 0
+        AND posts.del = 0
+        <include refid="conditionAdmin"/>
+        <include refid="groupByAdmin"/>
+        ORDER BY comments.cno DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectCommentPageByAdminUno" parameterType="SearchCondition" resultMap="commentResultMap">
+        <include refid="selectByAdmin"/>
+        WHERE comments.del = 0
+        AND posts.del = 0
+        AND comments.uno = #{uno}
+        <include refid="groupByAdmin"/>
+        ORDER BY comments.cno DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectCommentByAdminPno" parameterType="SearchCondition" resultMap="commentResultMap">
+        <include refid="selectByAdmin"/>
+        WHERE comments.del = 0
+        AND posts.del = 0
+        AND comments.pno = #{idx1}
+        <include refid="groupByAdmin"/>
+        ORDER BY comments.pcno ASC, comments.cno ASC
+    </select>
+
+<!--    <select id="selectComments" parameterType="CommentDto" resultMap="commentResultMap">
+        SELECT comments.cno AS cno
+        ,comments.pno AS pno
+        ,comments.uno AS uno
+        ,ifnull(users.id, '탈퇴한 사용자입니다.') AS userId
+        ,ifnull(comments.pcno, comments.cno) AS pcno
+        ,comments.comment AS comment
+        ,comments.created_at AS createdAt
+        ,comments.updated_at AS updatedAt
+        ,comments.del AS del
+        ,comments.deleted_at AS deletedAt
+        ,comments.state AS state
+        ,(CASE
+        WHEN rc.cno IS NULL AND bc.cno IS NULL THEN 'UNREPORTED_UNBLOCKED' /* 신고 x, 차단 x */
+        WHEN bc.cno IS NOT NULL THEN 'BLOCKED' /* 차단된 게시글. */
+        ELSE 'REPORTED' END) /* 신고된 게시글 */ AS contentState
+        <choose>
+            <when test="uno != '' and uno != null and uno != 0">
+                ,rc.rcno AS rcno
+                ,rc.uno AS reportUno
+                ,rc.brno AS brno
+                ,br.br_text AS brText
+            </when>
+            <otherwise>
+                ,COUNT(rc.rcno) AS rcnoCnt
+            </otherwise>
+        </choose>
         FROM comments
-            LEFT JOIN users ON comments.uno = users.uno
+        LEFT JOIN users ON comments.uno = users.uno
+        LEFT JOIN blocked_comments bc ON comments.cno = bc.cno AND bc.del = 0
+        <choose>
+            <when test="uno != '' and uno != null and uno != 0">
+                LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.uno = #{uno} AND rc.del = 0
+                LEFT JOIN block_reasons br ON rc.brno = br.brno
+            </when>
+            <otherwise>
+                LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.del = 0
+            </otherwise>
+        </choose>
+
+
         WHERE comments.pno = #{pno}
+        GROUP BY comments.cno
         ORDER BY pcno ASC, cno ASC
+    </select>-->
+    <select id="selectComments" parameterType="CommentDto" resultMap="commentResultMap">
+        SELECT comments.cno AS cno
+        ,comments.pno AS pno
+        ,comments.uno AS uno
+        ,ifnull(users.id, '탈퇴한 사용자입니다.') AS userId
+        ,ifnull(comments.pcno, comments.cno) AS pcno
+        ,comments.comment AS comment
+        ,comments.created_at AS createdAt
+        ,comments.updated_at AS updatedAt
+        ,comments.del AS del
+        ,comments.deleted_at AS deletedAt
+        ,comments.state AS state
+        ,(CASE
+        WHEN rc.cno IS NULL AND bc.cno IS NULL THEN 'UNREPORTED_UNBLOCKED' /* 신고 x, 차단 x */
+        WHEN bc.cno IS NOT NULL THEN 'BLOCKED' /* 차단된 게시글. */
+        ELSE 'REPORTED' END) AS contentState
+        <choose>
+            <when test="uno != '' and uno != null and uno != 0">
+                ,rc.rcno AS rcno
+                ,rc.uno AS reportUno
+                ,rc.brno AS brno
+                ,br.br_text AS brText
+            </when>
+            <otherwise>
+                ,COUNT(rc.rcno) AS rcnoCnt
+            </otherwise>
+        </choose>
+        FROM comments
+        LEFT JOIN users ON comments.uno = users.uno
+        LEFT JOIN blocked_comments bc ON comments.cno = bc.cno AND bc.del = 0
+        <choose>
+            <when test="uno != '' and uno != null and uno != 0">
+                LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.uno = #{uno} AND rc.del = 0
+                LEFT JOIN block_reasons br ON rc.brno = br.brno
+            </when>
+            <otherwise>
+                LEFT JOIN reported_comments rc ON comments.cno = rc.cno AND rc.del = 0
+            </otherwise>
+        </choose>
+        WHERE comments.pno = #{pno}
+        <choose>
+            <when test="uno == '' or uno == null or uno == 0">
+                GROUP BY comments.cno
+            </when>
+            <otherwise>
+                GROUP BY comments.cno, rc.rcno, rc.uno, rc.brno, br.br_text
+            </otherwise>
+        </choose>
+        ORDER BY pcno ASC, cno ASC
+    </select>
+
+
+    <select id="getCommentPageByUno" parameterType="SearchCondition" resultMap="commentResultMap">
+        SELECT DISTINCT c.cno        AS cno,
+                        c.comment    AS comment,
+                        p.pno        AS pno,
+                        p.uno        AS uno,
+                        p.title      AS postTitle,
+                        c.updated_at AS updatedAt
+        FROM comments c
+                 JOIN posts p ON p.pno = c.pno
+        WHERE c.uno = #{uno}
+          AND c.del = 0
+          AND p.del = 0
+        ORDER BY c.updated_at DESC, c.cno DESC
+            LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countCommentsByUno" parameterType="SearchCondition" resultType="int">
+        SELECT count(DISTINCT c.cno)
+        FROM comments c
+                 JOIN posts p ON p.pno = c.pno
+        WHERE c.uno = #{uno}
+          AND c.del = 0
+          AND p.del = 0
+        ORDER BY c.updated_at DESC, c.cno DESC;
+    </select>
+
+    <select id="selectCommentByCno" parameterType="int" resultType="CommentDto">
+        SELECT c.cno        AS cno,
+               c.comment    AS comment,
+               p.pno        AS pno,
+               p.uno        AS uno,
+               p.title      AS postTitle,
+               c.updated_at AS updatedAt
+        FROM comments c
+                 JOIN posts p ON p.pno = c.pno
+        WHERE c.cno = #{cno}
+          AND c.del = 0
+          AND p.del = 0
     </select>
 
     <insert id="insertComment" parameterType="CommentDto">
         <selectKey order="BEFORE" resultType="int" keyProperty="cno">
             SELECT ifnull(max(cno), 0) + 1 AS new_cno FROM comments
         </selectKey>
-        INSERT INTO comments (cno, pcno, pno, uno, comment, del)
-        VALUES (#{cno}, #{pcno}, #{pno}, #{uno}, #{comment}, 0)
+        INSERT INTO comments (cno, pcno, pno, uno, comment, updated_at, del)
+        VALUES (#{cno}, #{pcno}, #{pno}, #{uno}, #{comment}, now(), 0)
     </insert>
 
     <update id="updateComment" parameterType="CommentDto">
         UPDATE comments
-        SET comment = #{comment},
+        SET comment    = #{comment},
             updated_at = now()
         WHERE cno = #{cno}
           AND del = 0
@@ -46,13 +319,17 @@
 
     <delete id="deleteComment" parameterType="map">
         UPDATE comments
-        SET del = 1
+        SET del        = 1,
+            deleted_at = now()
         WHERE cno = #{cno}
           AND uno = #{uno}
     </delete>
 
     <delete id="deleteAll" parameterType="int">
-        DELETE FROM comments
+        UPDATE comments
+        SET del        = 1,
+            deleted_at = now()
         WHERE pno = #{pno}
     </delete>
+
 </mapper>

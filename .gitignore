@@ -88,3 +88,16 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
+!/src/main/webapp/static/image/upload/tester1.jpg
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditor.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorAnnounce.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorAnnounceAWS.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorAWS.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorAWSOrg.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorPost.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsCkEditorPostAWS.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsGeneral.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsGeneralAnnounce.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsGeneralAnnounceAWS.java
+/src/main/java/com/nki/t1/old/ZoldFileUtilsGeneralBanner.java
+/src/main/java/com/nki/t1/old/

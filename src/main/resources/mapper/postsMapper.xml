@@ -3,66 +3,208 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.nki.t1.dao.PostsMapper">
-    <sql id="searchCondition">
-        <choose>
-            <when test='option == "title"'>
-                AND posts.title LIKE concat('%', #{keyword}, '%')
-            </when>
-            <when test='option == "id"'>
-                AND users.id LIKE concat('%', #{keyword}, '%')
-            </when>
-            <when test='option == "content"'>
-                AND posts.content LIKE concat('%', #{keyword}, '%')
-            </when>
-            <otherwise>
-                AND (posts.title LIKE concat('%', #{keyword}, '%')
-                OR users.id LIKE concat('%', #{keyword}, '%')
-                OR posts.content LIKE concat('%', #{keyword}, '%'))
-            </otherwise>
-        </choose>
+    <resultMap id="postResultMap" type="com.nki.t1.dto.PostDto">
+        <result property="contentState" column="contentState" javaType="com.nki.t1.domain.ContentState" typeHandler="com.nki.t1.typeHandler.ContentStateTypeHandler"/>
+    </resultMap>
 
+
+    <sql id="selectNwhere">
+        SELECT p.pno                                                        AS pno,
+               p.uno                                                        AS uno,
+               wu.id                                                        AS userId,
+               p.title                                                      AS title,
+               p.content                                                    AS content,
+               p.created_at                                                 AS createdAt,
+               p.updated_at                                                 AS updatedAt,
+               bp.blocked_at                                                AS blockedAt,
+               rp.reported_at                                               AS reportedAt,
+               p.views                                                      AS views,
+               p.del                                                        AS del,
+               p.content_txt                                                AS contentTxt,
+               COUNT(DISTINCT c.cno)                                        AS cmtCnt,
+               COUNT(DISTINCT rp.rpno)                                      AS rpnoCnt, /* 신고 횟수 */
+               (CASE WHEN rp.pno IS NULL THEN FALSE ELSE TRUE END)          AS reported,
+               (CASE WHEN bp.pno IS NULL THEN FALSE ELSE TRUE END)          AS blocked,
+               GROUP_CONCAT(DISTINCT(br.br_text) ORDER BY br.brno ASC SEPARATOR ', ') AS brText,
+               (CASE
+                    WHEN rp.pno IS NULL AND bp.pno IS NULL THEN 0 /* 신고 x, 차단 x */
+                    WHEN bp.pno IS NOT NULL THEN 2 /* 차단된 게시글. */
+                    ELSE 1 END) /* 신고된 게시글 */                               AS state,
+               (CASE
+                    WHEN rp.pno IS NULL AND bp.pno IS NULL THEN 'UNREPORTED_UNBLOCKED' /* 신고 x, 차단 x */
+                    WHEN bp.pno IS NOT NULL THEN 'BLOCKED' /* 차단된 게시글. */
+                    ELSE 'REPORTED' END) /* 신고된 게시글 */                      AS contentState
+        FROM posts p
+                 LEFT JOIN users wu ON p.uno = wu.uno /* 작성자 */
+                 LEFT JOIN comments c ON p.pno = c.pno AND c.del = 0
+                 LEFT JOIN blocked_posts bp ON p.pno = bp.pno AND bp.del = 0
+                 LEFT JOIN block_reasons br ON bp.brno = br.brno AND bp.del = 0
+                 LEFT JOIN reported_posts rp ON p.pno = rp.pno
+                 LEFT JOIN users ru ON rp.uno = ru.uno /* 신고자 */
+        WHERE p.del = 0
     </sql>
 
-    <sql id="selectPosts">
-        SELECT posts.pno        AS pno,
-               posts.uno        AS uno,
-               users.id         AS userId,
-               posts.title      AS title,
-               posts.content    AS content,
-               posts.views      AS views,
-               posts.created_at AS createdAt,
-               posts.updated_at AS updatedAt
-        FROM posts
-            LEFT JOIN users ON posts.uno = users.uno
-        WHERE posts.del = 0
+    <sql id="conditionAdmin">
+        <if test="option3 == ''">
+            AND p.created_at BETWEEN #{startDt} AND #{endDt}
+        </if>
+        <choose>
+            <when test="option2 == 'REPORTED'">/* 신고 처리대기 게시물만 */
+                AND rp.pno IS NOT NULL
+                AND bp.pno IS NULL
+            </when>
+            <when test="option2 == 'BLOCKED'">/* 차단된 게시물만 */
+                AND bp.pno IS NOT NULL
+            </when>
+        </choose>
+        <if test="keywordList != null and keywordList.size() > 0">
+            AND
+            <foreach item="keywordItem" collection="keywordList" open="(" separator="OR" close=")">
+                <choose>
+                    <when test="option1 == 'pno'">
+                        p.pno LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'title'">
+                        p.title LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'content'">
+                        p.content_txt LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'writerId'">
+                        wu.id LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'writerUno'">
+                        wu.uno LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <otherwise>
+                        (p.pno LIKE concat('%', #{keywordItem}, '%')
+                        OR p.title LIKE concat('%', #{keywordItem}, '%')
+                        OR wu.id LIKE concat('%', #{keywordItem}, '%')
+                        OR wu.uno LIKE concat('%', #{keywordItem}, '%')
+                        OR p.content_txt LIKE concat('%', #{keywordItem}, '%'))
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <sql id="condition">
+        <if test="keywordList != null and keywordList.size() > 0">
+            AND
+            <foreach item="keywordItem" collection="keywordList" open="(" separator="OR" close=")">
+                <choose>
+                    <when test="option1 == 'title'">
+                        p.title LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'pno'">
+                        p.pno LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'writer'">
+                        wu.id LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'content'">
+                        p.content LIKE concat('%', #{keywordItem}, '%')
+                    </when>
+                    <otherwise>
+                        (p.pno LIKE concat('%', #{keywordItem}, '%')
+                        OR p.title LIKE concat('%', #{keywordItem}, '%')
+                        OR wu.id LIKE concat('%', #{keywordItem}, '%')
+                        OR p.content_txt LIKE concat('%', #{keywordItem}, '%'))
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <sql id="groupNorder">
+        GROUP BY
+            p.pno,
+            p.uno,
+            wu.id,
+            p.title,
+            p.content,
+            p.created_at,
+            p.updated_at,
+            p.views,
+            p.del,
+            p.content_txt
+        ORDER BY p.pno desc
     </sql>
 
     <select id="countPost" parameterType="SearchCondition" resultType="int">
-        SELECT count(*)
-        FROM posts
-            LEFT JOIN users ON posts.uno = users.uno
-        WHERE posts.del = 0
-        <include refid="searchCondition"/>
+        SELECT count(pno)
+        FROM(
+        <include refid="selectNwhere"/>
+        <include refid="condition"/>
+        AND bp.pno IS NULL <!-- 차단 제외 -->
+        <include refid="groupNorder"/>
+        ) AS sub_query
     </select>
 
-    <select id="selectPage" parameterType="SearchCondition" resultType="PostDto">
-        <include refid="selectPosts"/>
-        <include refid="searchCondition"/>
-        ORDER BY posts.created_at desc, posts.pno desc
+    <select id="selectPage" parameterType="SearchCondition" resultMap="postResultMap">
+        <include refid="selectNwhere"/>
+        <include refid="condition"/>
+        AND bp.pno IS NULL <!-- 차단 제외 -->
+        <include refid="groupNorder"/>
         LIMIT #{offset}, #{pageSize}
     </select>
 
-    <select id="selectPost" parameterType="int" resultType="PostDto">
-        <include refid="selectPosts"/>
-        AND posts.pno = #{pno}
+    <select id="countMyPost" parameterType="SearchCondition" resultType="int">
+        SELECT count(pno)
+        FROM(
+        <include refid="selectNwhere"/>
+        <include refid="condition"/>
+        AND p.uno = #{uno} <!-- 작성글 -->
+        <include refid="groupNorder"/>
+        ) AS sub_query
+    </select>
+
+    <select id="selectMyPostPage" parameterType="SearchCondition" resultMap="postResultMap">
+        <include refid="selectNwhere"/>
+        <include refid="condition"/>
+        AND p.uno = #{uno} <!-- 작성글 -->
+        <include refid="groupNorder"/>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countPostByAdmin" parameterType="SearchCondition" resultType="int">
+        SELECT count(pno)
+        FROM(
+        <include refid="selectNwhere"/>
+        <include refid="conditionAdmin"/>
+        <include refid="groupNorder"/>
+        ) AS sub_query
+    </select>
+
+    <select id="selectPostPageByAdmin" parameterType="SearchCondition" resultMap="postResultMap">
+        <include refid="selectNwhere"/>
+        <include refid="conditionAdmin"/>
+        <include refid="groupNorder"/>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectPostPageByAdminUno" parameterType="SearchCondition" resultMap="postResultMap">
+        <include refid="selectNwhere"/>
+        <include refid="conditionAdmin"/>
+        AND wu.uno = #{uno}
+        <include refid="groupNorder"/>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectPost" parameterType="int" resultMap="postResultMap"> <!-- 검색조건 없는 쿼리였음 -->
+        <include refid="selectNwhere"/>
+        AND p.pno = #{pno}
+        <include refid="groupNorder"/>
     </select>
 
     <insert id="insertPost" parameterType="PostDto">
         <selectKey keyProperty="pno" order="BEFORE" resultType="int">
             SELECT ifnull(max(pno), 0) + 1 as new_pno from posts
         </selectKey>
-        INSERT INTO posts (pno, uno, title, content, del)
-        VALUES (#{pno}, #{uno}, #{title}, #{content}, 0)
+        INSERT INTO posts (pno, uno, title, content, content_txt, del)
+        VALUES (#{pno}, #{uno}, #{title}, #{content}, #{contentTxt}, 0)
     </insert>
 
     <update id="increaseView" parameterType="int">
@@ -74,17 +216,44 @@
 
     <update id="updatePost" parameterType="PostDto">
         UPDATE posts
-        SET title      = #{title},
-            content    = #{content},
-            updated_at = now()
+        SET title       = #{title},
+            content     = #{content},
+            content_txt = #{contentTxt},
+            updated_at  = now()
         WHERE pno = #{pno}
           AND del = 0
     </update>
 
-    <delete id="deletePost" parameterType="map">
+    <delete id="deletePost" parameterType="PostDto">
         UPDATE posts
-        SET del = 1
+        SET del        = 1,
+            deleted_at = now()
         WHERE pno = #{pno}
           AND uno = #{uno}
     </delete>
+
+    <select id="countByCmtUno" parameterType="SearchCondition" resultType="int">
+        SELECT COUNT(DISTINCT p.pno)
+        FROM posts p
+                 LEFT JOIN comments c ON p.pno = c.pno
+        WHERE c.uno = #{uno}
+          AND p.del = 0
+          AND c.del = 0
+    </select>
+
+    <select id="selectUserDtoByPno" resultType="UserDto" parameterType="int">
+        SELECT u.uno        AS uno,
+               u.id         AS id,
+               u.email      AS email,
+               u.password   AS password,
+               u.role       AS userRole,
+               u.social     AS social,
+               u.failures   AS failures,
+               u.nonlocked  AS nonlocked
+        FROM posts p
+                 LEFT JOIN users u ON u.uno = p.uno
+        WHERE p.pno = #{pno}
+          AND u.del = 0
+    </select>
+
 </mapper>
