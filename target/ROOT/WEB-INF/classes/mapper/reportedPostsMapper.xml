@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nki.t1.dao.ReportedPostsMapper">
+    <select id="getReportsPage" parameterType="SearchCondition" resultType="ReportedPostsDto">
+        SELECT rp.rpno        AS rpno
+             , rp.pno         AS pno
+             , rp.brno        AS brno
+             , br.br_text     AS brText
+             , rp.uno         AS reportUno
+             , ifnull(ru.id, '탈퇴한 사용자입니다.')          AS reportUserId
+             , rp.reported_at AS reportedAt
+
+        FROM reported_posts rp
+                 LEFT JOIN block_reasons br ON rp.brno = br.brno
+                 LEFT JOIN users ru ON rp.uno = ru.uno
+        WHERE rp.pno = #{idx1}
+    </select>
+
+    <select id="countReports" parameterType="SearchCondition" resultType="int">
+        SELECT COUNT(rp.rpno)
+
+        FROM reported_posts rp
+                 LEFT JOIN block_reasons br ON rp.brno = br.brno
+                 LEFT JOIN users ru ON rp.uno = ru.uno
+        WHERE rp.pno = #{idx1}
+        /*LIMIT #{offset}, #{pageSize}*/
+    </select>
+
+    <select id="getReportsGroupByBrno" parameterType="SearchCondition" resultType="ReportedPostsDto">
+        SELECT rp.brno        AS brno
+             , COUNT(br.brno) AS brnoCnt
+             , br.br_text     AS brText
+
+        FROM reported_posts rp
+                 LEFT JOIN block_reasons br ON rp.brno = br.brno
+                 LEFT JOIN users ru ON rp.uno = ru.uno
+        WHERE rp.pno = #{idx1}
+        GROUP BY br.brno, br.br_text
+    </select>
+
+    <select id="getReportByUnoPno" parameterType="ReportedPostsDto" resultType="ReportedPostsDto">
+        SELECT rpno AS rpno
+             , pno  AS uno
+             , brno AS brno
+             , uno  AS reportUno
+
+        FROM reported_posts
+        WHERE pno = #{pno}
+          AND uno = #{reportUno}
+          AND del = 0
+    </select>
+
+    <insert id="reportByUnoPno" parameterType="ReportedPostsDto">
+        <selectKey resultType="int" keyProperty="rpno" order="BEFORE">
+            SELECT ifnull(max(rpno), 0) + 1 FROM reported_posts
+        </selectKey>
+        INSERT INTO reported_posts (rpno, pno, brno, uno, reported_at)
+        VALUES (#{rpno}, #{pno}, #{brno}, #{reportUno}, now())
+    </insert>
+
+    <update id="updateReportByUnoPno" parameterType="ReportedPostsDto">
+        UPDATE  reported_posts
+        SET     brno = #{brno}
+                ,reported_at = now()
+        WHERE pno = #{pno} AND uno = #{reportUno}
+    </update>
+
+    <delete id="deleteReportByUnoPno" parameterType="ReportedPostsDto">
+        UPDATE reported_posts
+        SET del        = 1
+          , delete_uno = #{deleteUno}
+          , deleted_at = now()
+        WHERE pno = #{idx}
+          AND uno = #{reportUno}
+          AND del = 0
+    </delete>
+</mapper>
