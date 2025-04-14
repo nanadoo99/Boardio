@@ -34,6 +34,11 @@ Boardio는 게시글과 댓글을 중심으로 자유롭게 소통하고, 알림
 ## 🧩 기술 & 시스템 아키텍쳐
 ![Boardio_system.png](https://github.com/nanadoo99/t1/blob/master/Boardio_system.png)
 
+
+## 🗂️ ERD 구조도
+![Boardio_ERD.png](https://github.com/nanadoo99/Boardio/blob/master/Boardio_ERD.png)
+
+
 ## 🔍 문제해결 사례
   ### 배경
   파일 업로드는 4가지에 대해 이루어짐
