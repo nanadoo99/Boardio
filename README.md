@@ -53,8 +53,8 @@ Boardio는 게시글과 댓글을 중심으로 자유롭게 소통하고, 알림
   저장소 위치(S3 vs 서버)와 업로드 유형(CkEditor vs 일반)
 
   ### 해결안
-  업로드 유형: FileUploader과 이를 상속하는 인터페이스 정의.
-  저장소 위치: 추상 및 구체 유틸리티 클래스로 외부에서 주입.
+  - 업로드 유형: FileUploader과 이를 상속하는 인터페이스 정의.
+  - 저장소 위치: 추상 및 구체 유틸리티 클래스로 외부에서 주입.
 
   ![Boardio_문제해결사례_after.png](https://github.com/nanadoo99/t1/blob/master/Boardio_%EB%AC%B8%EC%A0%9C%ED%95%B4%EA%B2%B0%EC%82%AC%EB%A1%80_after.png)
   
