@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FileUtilsCkEditorPost extends FileUtilsCkEditor {
-    public FileUtilsCkEditorPost(@Qualifier("FileCkEditorDaoPost") FileCkEditorDao fileCkEditorDao,
+    public FileUtilsCkEditorPost(@Qualifier("fileCkEditorDaoPostImpl") FileCkEditorDao fileCkEditorDao,
                                  @Value("#{path['file.upload.directory.post.ckEditor']}")
                                  String uploadDir,
                                  @Value("#{path['file.web.directory.post.ckEditor']}")

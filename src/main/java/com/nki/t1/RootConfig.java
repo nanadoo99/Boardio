@@ -1,5 +1,7 @@
 package com.nki.t1;
 
+import com.nki.t1.filter.MultipartExceptionHandlingFilter;
+import com.nki.t1.resolver.CustomMultipartResolver;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.context.annotation.Bean;
@@ -69,9 +71,14 @@ public class RootConfig {
 
     @Bean
     public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(1048576);
+        CustomMultipartResolver multipartResolver = new CustomMultipartResolver();
+        multipartResolver.setMaxUploadSize(2 * 1024 * 1024);
         return multipartResolver;
+    }
+
+    @Bean
+    public MultipartExceptionHandlingFilter multipartExceptionHandlingFilter() {
+        return new MultipartExceptionHandlingFilter();
     }
 
     @Bean(name = "path")
