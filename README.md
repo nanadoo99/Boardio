@@ -6,21 +6,21 @@
 관리자 페이지를 통해서는 공지사항과 배너를 손쉽게 운영하고, 회원과 게시글 및 댓글을 관리할 수 있습니다.
 
 ### 📝 목차
-1. [사용 기술](##-🛠️-사용-기술)
-2. [기능](##-🚀-기능)
-3. [시스템 아키텍쳐](##-🧩-시스템-아키텍쳐)
-4. [ERD 구조도](##-🗂️-ERD-구조도)
-5. [문제해결 사례](#🔍-문제해결-사례)
+1. [사용 기술](#사용-기술)
+2. [기능](#기능)
+3. [시스템 아키텍쳐](#시스템-아키텍쳐)
+4. [ERD 구조도](#ERD-구조도)
+5. [문제해결 사례](#-문제해결-사례)
 
 
-## 🛠️ 사용 기술
+## 사용 기술
 - Backend: Spring Legacy, Spring Security, MyBatis
 - Infra: AWS EC2, RDS(MySQL), S3, Redis
 - Auth: Google OAuth 2.0, Email 인증
 - Frontend: JSP, CkEditor, JavaScript
 - 기타: WebSocket, ETag, SMTP
 
-## 🚀 기능
+## 기능
   ### 공통
   - 회원가입(이메일 인증, Google 로그인)/탈퇴
   - 로그인(비밀번호 재설정 이메일)/로그아웃
@@ -41,15 +41,15 @@
   - 게시글 및 댓글 차단 및 관리
   - 사용자 관리
 
-## 🧩 시스템 아키텍쳐
+## 시스템 아키텍쳐
 ![Boardio_system.png](https://github.com/nanadoo99/t1/blob/master/Boardio_system.png)
 
 
-## 🗂️ ERD 구조도
+## ERD 구조도
 ![Boardio_ERD.png](https://github.com/nanadoo99/Boardio/blob/master/Boardio_ERD.png)
 
 
-## 🔍 문제해결 사례
+## 문제해결 사례
   ### 배경
   파일 업로드는 4가지에 대해 이루어짐
   
