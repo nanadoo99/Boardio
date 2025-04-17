@@ -3,6 +3,10 @@ Boardio는 게시글과 댓글을 중심으로 자유롭게 소통하고, 알림
 보다 활발하고 안전한 **커뮤니티 활동을 지원하는 서비스**입니다.
 관리자 페이지를 통해서는 공지사항과 배너를 손쉽게 운영하고, 회원과 게시글 및 댓글을 관리할 수 있습니다.
 
+### 📝 목차
+1. [사용 기술](사용-기술)
+
+
 ## 🛠️ 사용 기술
 - Backend: Spring Legacy, Spring Security, MyBatis
 - Infra: AWS EC2, RDS(MySQL), S3, Redis
