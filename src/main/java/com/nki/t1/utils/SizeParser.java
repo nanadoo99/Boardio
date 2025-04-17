@@ -1,8 +1,11 @@
 package com.nki.t1.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 public class SizeParser {
 
     private static final Map<String, Long> SIZE_UNIT = new LinkedHashMap<>(); // HashMap >> 무작위 검사, LinkedHashMap로 순서보장
@@ -28,11 +31,11 @@ public class SizeParser {
     public static Long stringToLong(String size) {
         size = size.trim().toUpperCase();
 
-        System.out.println("size = " + size);
+        log.info("size = " + size);
         for( Map.Entry<String, Long>  entry : SIZE_UNIT.entrySet()) {
             if(size.endsWith(entry.getKey())) {
                 String numericPart = size.replace(entry.getKey(), "").trim(); // 🔍 숫자 부분 확인
-                System.out.println("Parsed numeric part: '" + numericPart + "'"); // ✅ 추가 디버깅
+                log.info("Parsed numeric part: '" + numericPart + "'"); // ✅ 추가 디버깅
                 return (long) Integer.parseInt(numericPart) * entry.getValue();
             }
         }

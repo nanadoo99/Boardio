@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -81,9 +80,9 @@ public abstract class AwsS3Utils {
 
     // 다운로드
     public byte[] downloadObject(String uuidName) {
-        System.out.println("start of s3 download");
+        log.info("start of s3 download");
         S3Object s3Object = s3Client.getObject(bucketName, uuidName);
-        System.out.println("s3Object = " + s3Object);
+        log.info("s3Object = " + s3Object);
         S3ObjectInputStream inputStream = s3Object.getObjectContent();
         try {
             byte[] content = IOUtils.toByteArray(inputStream);
@@ -117,7 +116,7 @@ public abstract class AwsS3Utils {
             boolean isExpired = currentTime - lastModifiedTime > (expirationPeriodSec * 1000L);
 
             // 로그 출력
-            System.out.println("");
+            log.info("");
             System.out.print("----- file name: " + summary.getKey());
             System.out.print(" L_____ lastModified: " + sdf.format(lastModifiedDate)
                     + " / timeDiff: " + (currentTime - lastModifiedTime)
@@ -131,7 +130,7 @@ public abstract class AwsS3Utils {
             }
         }
 
-        System.out.println("Expired files: " + expiredFileSet);
+        log.info("Expired files: " + expiredFileSet);
         return expiredFileSet;
     }
 }

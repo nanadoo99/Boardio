@@ -138,7 +138,7 @@ public class UserDetailsServiceImpl implements CustomUserDetailsService {
             UserSecurityDto authUser = sessionUtils.getUserSecurityDto();
             int uno = authUser.getUno();
             userDto.setUserRole(authUser.getUserRole());
-            System.out.println("----- authUser : " + authUser + " uno : " + uno);
+            log.info("----- authUser : " + authUser + " uno : " + uno);
             userDto.setUno(uno);
             userDto.setEmail(authUser.getEmail());
             userDto.setSocial(authUser.isSocial());
@@ -179,21 +179,21 @@ public class UserDetailsServiceImpl implements CustomUserDetailsService {
     @Override
     public void checkFailure(String attemptPwd, UserDto userDto) throws LockedException, BadCredentialsException {
         if (!passwordEncoder.matches(attemptPwd, userDto.getPassword())) {
-            System.out.println("----- unmatched password");
-            System.out.println("----- userDto: " + userDto);
+            log.info("----- unmatched password");
+            log.info("----- userDto: " + userDto);
             int failures = userDto.getFailures() + 1;
             userDto.setFailures(failures);
             if (failures >= maxAttempts) { // 초과시
-                System.out.println("----- LockedException");
+                log.info("----- LockedException");
                 userDto.setNonlocked(false);
                 userDao.increaseFailures(userDto);
-                System.out.println("----- userDto: " + userDto);
+                log.info("----- userDto: " + userDto);
                 throw new LockedException("too many attempts");
             } else {
-                System.out.println("----- BadCredentialsException");
+                log.info("----- BadCredentialsException");
                 userDto.setNonlocked(true);
                 userDao.increaseFailures(userDto);
-                System.out.println("----- userDto: " + userDto);
+                log.info("----- userDto: " + userDto);
                 throw new BadCredentialsException("" + failures); // 보존할것.
             }
         }
