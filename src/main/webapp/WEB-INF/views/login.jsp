@@ -3,6 +3,19 @@
 
 <div class="container p-5 d-flex justify-content-center align-items-center">
     <div class="card p-4 m-5 shadow" style="width: 100%; max-width: 400px;">
+        <h3 class="text-center mb-4">테스트 계정 로그인</h3>
+        <form id="loginFormTest1" class="mb-3" action="<c:url value='/auth/login'/>" method="post">
+            <input type="hidden" name="email" value="nki@nnaver.com">
+            <input type="hidden" name="password" value="1234">
+            <button type="submit" class="btn btn-primary w-100"> 관리자 테스트 계정(admin_nki)</button>
+        </form>
+        <form id="loginFormTest2" action="<c:url value='/auth/login'/>" method="post">
+            <input type="hidden" name="email" value="rinx4@nnaver.com">
+            <input type="hidden" name="password" value="1234">
+            <button type="submit" class="btn btn-secondary w-100"> 일반사용자 테스트 계정(user_rinx)</button>
+        </form>
+    </div>
+    <div class="card p-4 m-5 shadow" style="width: 100%; max-width: 400px;">
         <h3 class="text-center mb-4">로그인</h3>
         <form action="<c:url value='/auth/login'/>" method="post"> <%--name="loginForm" --%>
             <div class="mb-3">

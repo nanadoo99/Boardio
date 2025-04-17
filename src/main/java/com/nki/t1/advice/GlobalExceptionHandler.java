@@ -14,7 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,10 +88,10 @@ public class GlobalExceptionHandler {
         return getErrorResponseEntity(errorResponse);
     }
 
-    @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<Map<String, Object>> handleMultipartException(MultipartException e) {
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.error(e.getMessage(), e);
-        log.info("AdminAnnounceController.handleMultipartException");
+        log.info("AdminAnnounceController.handleMaxUploadSizeExceededException");
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("uploaded", 0);
         errorResponse.put("error", Map.of("message", ErrorType.FILE_SIZE_EXCEEDED.getMessage() + " 최대 1MB 가능")); // 사용자에게 표시될 메시지

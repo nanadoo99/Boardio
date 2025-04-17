@@ -204,7 +204,6 @@
 
     // 파일 크기 검사 함수
     function attachedFileSizeCheck(file, input) {
-        alert("attachedFileSizeCheck");
 
         var formData = new FormData();
         formData.append("file", file);
