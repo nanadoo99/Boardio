@@ -9,7 +9,7 @@
     <meta name="_csrf_header" content="${_csrf.headerName}">
     <meta name="_csrf" content="${_csrf.token}">
 
-    <title>경인보드</title>
+    <title>Boardio</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="/static/css/comm/comm.css"/>

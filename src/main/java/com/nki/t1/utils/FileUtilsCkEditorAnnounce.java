@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FileUtilsCkEditorAnnounce extends FileUtilsCkEditor {
-    public FileUtilsCkEditorAnnounce(@Qualifier("FileCkEditorDaoAnnounce") FileCkEditorDao fileCkEditorDao,
+    public FileUtilsCkEditorAnnounce(@Qualifier("fileCkEditorDaoAnnounceImpl") FileCkEditorDao fileCkEditorDao,
                                      @Value("#{path['file.upload.directory.announce.ckEditor']}")
                                  String uploadDir,
                                      @Value("#{path['file.web.directory.announce.ckEditor']}")

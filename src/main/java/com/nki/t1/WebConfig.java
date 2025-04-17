@@ -60,14 +60,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/upload/**").addResourceLocations("file:///C:/Users/nki/Pictures/t1/upload/");
     }
 
-/*    @Bean
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-//        multipartResolver.setMaxUploadSize(52428800); // 50MB
-        multipartResolver.setMaxUploadSize(1); // 50MB
-        return multipartResolver;
-    }*/
-
     @Bean
     public SimpleMappingExceptionResolver simpleMappingExceptionResolver() {
         SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
