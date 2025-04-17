@@ -49,7 +49,7 @@
 ![Boardio_ERD.png](https://github.com/nanadoo99/Boardio/blob/master/Boardio_ERD.png)
 
 
-## 문제해결 사례
+## 🔍 문제해결 사례
   ### 배경
   파일 업로드는 4가지에 대해 이루어짐
   
