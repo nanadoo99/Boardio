@@ -226,11 +226,29 @@
         var announcePostedAt = $('#announce-postedAt').val();
         var bannerImage = $('#banner-image-input')[0].files[0];        // 파일 선택
         var memo = $('#banner-memo').val();
+        var alertMsg = '';
 
-        if (postedAt == "" || unpostedAt == "" || ano == "" || typeof bannerImage === "undefined") {
-            alert("Please enter all required details.");
-            return false;
+        if (postedAt == "") {
+            alertMsg += "시작일을 선택하세요.";
         }
+
+        if (unpostedAt == "") {
+            alertMsg += "종료일을 선택하세요.";
+        }
+
+        if (ano == "") {
+            alertMsg += "연결할 공지사항을 선택하세요.";
+        }
+
+        if (!$('#banner-image-input').val()) {
+            alertMsg += "배너 이미지를 선택하세요.";
+        }
+
+        if (alertMsg.length != 0) {
+            alert(alertMsg);
+            return
+        }
+
 
         // 배너 공개일이 공지 노출일보다 작을 경우, return
         if (postedAt < moment(announcePostedAt).format('YYYY-MM-DD')) {
@@ -494,10 +512,23 @@
         var announcePostedAt = $('#announce-postedAt').val();
         var bannerImage = $('#banner-image-input')[0].files[0];
         var memo = $('#banner-memo').val();
+        var alertMsg = '';
 
-        if (postedAt == "" || unpostedAt == "" || ano == "") {
-            alert("Please enter all required details.");
-            return false;
+        if (postedAt == "") {
+            alertMsg += "시작일을 선택하세요.";
+        }
+
+        if (unpostedAt == "") {
+            alertMsg += "종료일을 선택하세요.";
+        }
+
+        if (ano == "") {
+            alertMsg += "연결할 공지사항을 선택하세요.";
+        }
+
+        if (alertMsg.length != 0) {
+            alert(alertMsg);
+            return
         }
 
         // 배너 공개일이 공지 노출일보다 작을 경우, return

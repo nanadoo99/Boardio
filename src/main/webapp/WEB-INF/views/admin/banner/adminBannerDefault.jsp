@@ -50,7 +50,7 @@
         // var memo = $('#banner-memo').val();
 
         if (typeof bannerImage === "undefined") {
-            alert("Please enter all required details.");
+            alert("배너이미지를 선택해주세요.");
             return false;
         }
 
