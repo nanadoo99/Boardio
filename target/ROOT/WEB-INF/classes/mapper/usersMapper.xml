@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 검토 : 각 sql id 이름 CRUD 중심으로 바꾸기 -->
+<mapper namespace="com.nki.t1.dao.UsersMapper">
+
+    <select id="existingSimilarIdList" parameterType="String" resultType="String">
+        SELECT  id
+        FROM    users
+        WHERE   id LIKE CONCAT('%', #{id}, '%')
+          AND del = 0
+    </select>
+
+
+    <select id="findByEmail" parameterType="String" resultType="UserDto">
+        select uno        as uno,
+               id         as id,
+               email      as email,
+               password   as password,
+               role       as userRole,
+               social     as social,
+               failures   as failures,
+               nonlocked  as nonlocked,
+               created_at as createdAt,
+               updated_at as updatedAt
+        from users
+        where email = #{value}
+          AND del = 0
+    </select>
+
+    <select id="idChk" parameterType="String" resultType="int">
+        SELECT count(*)
+        FROM users
+        WHERE id = #{value}
+          AND del = 0
+    </select>
+
+
+    <select id="emailChk" parameterType="String" resultType="int">
+        SELECT count(*)
+        FROM users
+        WHERE email = #{value}
+          AND del = 0
+    </select>
+
+    <select id="existMemberId" parameterType="UserDto" resultType="boolean">
+        SELECT count(*)
+        FROM users
+        WHERE id = #{id}
+          AND del = 0
+    </select>
+
+    <select id="existMemberEmail" parameterType="UserDto" resultType="boolean">
+        SELECT count(*)
+        FROM users
+        WHERE email = #{email}
+        AND del = 0
+    </select>
+
+    <insert id="insertUser" parameterType="UserDto">
+        <selectKey keyProperty="uno" order="BEFORE" resultType="int">
+            select ifnull(max(uno), 0) + 1 as new_uno from users
+        </selectKey>
+        INSERT INTO users (uno, id, email, password, role, social)
+        VALUES (#{uno}, #{id}, #{email}, #{password}, #{userRole}, #{social})
+    </insert>
+
+    <select id="selectUserByUno" parameterType="int" resultType="UserDto">
+        SELECT uno as uno,
+               id as id,
+               email as email,
+               password as password,
+               created_at as createdAt,
+               updated_at as updatedAt
+        FROM users
+        WHERE uno = #{uno}
+          AND del = 0
+    </select>
+
+    <update id="updateUser" parameterType="UserDto">
+        UPDATE users
+        SET id         = #{id},
+            password   = #{password},
+            social     = #{social},
+            updated_at = now()
+        WHERE uno = #{uno}
+          AND del = 0
+    </update>
+
+
+    <update id="updatePwByEmail" parameterType="UserDto">
+        UPDATE  users
+        SET     password = #{password},
+                updated_at = now()
+        WHERE   email = #{email}
+          AND del = 0
+    </update>
+
+    <update id="increaseFailures" parameterType="UserDto">
+        UPDATE  users
+        SET     nonlocked = #{nonlocked},
+                failures = #{failures}
+        WHERE   uno = #{uno}
+          AND del = 0
+    </update>
+
+    <update id="resetFailures" parameterType="int">
+        UPDATE  users
+        SET     nonlocked = 1,
+                failures = 0
+        WHERE   uno = #{uno}
+          AND del = 0
+    </update>
+
+<!--    <deleteFileSetFromServer id="deleteUserByUno" parameterType="UserDto">
+        UPDATE  users
+        SET     del = 1,
+                deleted_at = now()
+        WHERE   uno = #{uno}
+          AND del = 0
+    </deleteFileSetFromServer>-->
+
+    <delete id="deleteUserByUno" parameterType="UserDto">
+        DELETE FROM  users
+        WHERE   uno = #{uno}
+        AND     role = 'USER'
+    </delete>
+
+    <delete id="deleteAdminByUno" parameterType="UserDto">
+        UPDATE  users
+        SET     del = 1,
+                deleted_at = now()
+        WHERE   uno = #{uno}
+          AND   del = 0
+          AND   role = 'ADMIN'
+    </delete>
+
+    <sql id="selectUserForAdmin">
+        SELECT u.uno                 as uno,
+               count(DISTINCT p.pno) AS countPost,
+               count(DISTINCT c.cno) AS countComment,
+               count(DISTINCT v.id)  AS countVisit,
+               MAX(v.created_at)     AS lastVisitDate,
+               u.id                  as id,
+               u.email               as email,
+               u.role                as userRole,
+               u.social              as social,
+               u.failures            as failures,
+               u.nonlocked           as nonlocked,
+               u.created_at          as createdAt,
+               u.updated_at          as updatedAt
+        FROM users as u
+                 LEFT JOIN posts p ON u.uno = p.uno AND p.del = 0
+                 LEFT JOIN comments c ON u.uno = c.uno AND c.del = 0
+                 LEFT JOIN visitors v ON u.uno = v.uno
+        WHERE u.del = 0
+    </sql>
+
+    <sql id="selectUserForAdminCondition">
+        <choose>
+            <when test="option2 == 'ADMIN'">
+                AND (u.role = 'ADMIN' OR u.role = 'SUPER_ADMIN')
+            </when>
+            <when test="option2 == 'USER'">
+                AND u.role = 'USER'
+            </when>
+        </choose>
+        <if test="keywordList != null and keywordList.size() > 0">
+            AND
+            <foreach item="keywordItem" collection="keywordList" open="(" separator="," close=")">
+                <choose>
+                    <when test="option1 == 'uno'">
+                        u.uno LIKE CONCAT('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'id'">
+                        u.id LIKE CONCAT('%', #{keywordItem}, '%')
+                    </when>
+                    <when test="option1 == 'email'">
+                        u.email LIKE CONCAT('%', #{keywordItem}, '%')
+                    </when>
+                    <otherwise>
+                        (u.uno LIKE CONCAT('%', #{keywordItem}, '%')
+                        OR u.id LIKE CONCAT('%', #{keywordItem}, '%')
+                        OR u.email LIKE CONCAT('%', #{keywordItem}, '%'))
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="selectUserForAdminGroupBy">
+        GROUP BY u.uno, u.id, u.email, u.role, u.social, u.failures, u.nonlocked, u.created_at, u.updated_at
+    </sql>
+
+    <select id="countUserByAdmin" parameterType="SearchCondition" resultType="int">
+        SELECT COUNT(u.id)
+        FROM users u
+        WHERE u.del = 0
+        <include refid="selectUserForAdminCondition"/>
+    </select>
+
+    <select id="selectUserListByAdmin" parameterType="SearchCondition" resultType="UserAdminDto">
+        <include refid="selectUserForAdmin"/>
+        <include refid="selectUserForAdminCondition"/>
+        <include refid="selectUserForAdminGroupBy"/>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectUserByAdmin" parameterType="int" resultType="UserAdminDto">
+        <include refid="selectUserForAdmin"/>
+        AND u.uno = #{idx}
+        <include refid="selectUserForAdminGroupBy"/>
+    </select>
+
+    <update id="updateUserRoleBySuperAdmin" parameterType="UserDto">
+        UPDATE users
+        SET     role = #{userRole}
+        WHERE   uno = #{uno}
+        AND del = 0
+    </update>
+</mapper>
