@@ -24,7 +24,7 @@ public class UserSecurityDto extends User implements ObjDto, OAuth2User {
     private String email;
     //    private String password;
     @Enumerated(EnumType.STRING)
-    private Role userRole; // 검토 : Role 이 여러개인 경우. 조인 테이블까지도..
+    private Role userRole;
     private boolean nonlocked;
     private boolean social;
     private Integer failures;
@@ -44,19 +44,6 @@ public class UserSecurityDto extends User implements ObjDto, OAuth2User {
         this.userRole = userRole;
     }
 
-
-
-
-/*    @Override
-    public Collection<GrantedAuthority> getAuthorities() {
-//        return this.getAuthorities();
-        return authorities;
-    }
-
-
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }*/
     public UserDto toUserDto() {
         return UserDto.builder()
                 .uno(this.uno)

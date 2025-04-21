@@ -173,7 +173,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new ForwardedHeaderFilter();
     }
 
-
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(Collections.singletonList(googleClientRegistration()));

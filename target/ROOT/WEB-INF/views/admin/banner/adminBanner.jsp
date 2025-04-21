@@ -244,6 +244,13 @@
             alertMsg += "배너 이미지를 선택하세요.";
         }
 
+        if (bannerImage.size > 3 * 1024 * 1024) {
+            var fileSizeMB = (bannerImage.size / (1024 * 1024)).toFixed(2);
+            alert("파일 크기가 3MB를 초과했습니다. 현재 크기: " + fileSizeMB + "MB");
+            $('#banner-image-input').val(""); // 선택된 파일 초기화
+            return false;
+        }
+
         if (alertMsg.length != 0) {
             alert(alertMsg);
             return
@@ -545,6 +552,16 @@
         if (bannerImage) {
             formData.append("image", bannerImage); // 파일 추가
         }
+
+        if (bannerImage) {
+            if (bannerImage.size > 3 * 1024 * 1024) {
+                var fileSizeMB = (bannerImage.size / (1024 * 1024)).toFixed(2);
+                alert("파일 크기가 3MB를 초과했습니다. 현재 크기: " + fileSizeMB + "MB");
+                $('#banner-image-input').val(""); // 파일 선택 초기화
+                return false;
+            }
+        }
+
         formData.append("memo", memo);
 
         console.log(ano);

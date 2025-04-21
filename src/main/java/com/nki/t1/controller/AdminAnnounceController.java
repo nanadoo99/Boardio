@@ -1,11 +1,14 @@
 package com.nki.t1.controller;
 
 
+import com.nki.t1.component.PageHandler;
 import com.nki.t1.domain.ErrorDetail;
 import com.nki.t1.domain.ErrorType;
-import com.nki.t1.component.PageHandler;
 import com.nki.t1.domain.Url;
-import com.nki.t1.dto.*;
+import com.nki.t1.dto.AnnounceDto;
+import com.nki.t1.dto.FileDto;
+import com.nki.t1.dto.SearchCondition;
+import com.nki.t1.dto.UserDto;
 import com.nki.t1.exception.InvalidFileException;
 import com.nki.t1.service.AnnounceService;
 import com.nki.t1.service.FileAnnounceService;
@@ -24,7 +27,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.util.UriUtils;
 
 import javax.validation.Valid;
@@ -69,13 +71,6 @@ public class AdminAnnounceController {
         model.addAttribute(PAGE_PATH, ADMIN_ANNOUNCE_LIST_PATH);
 
         return "admin.announce.adminAnnounce";
-    }
-
-    // 첨부파일 크기체크
-    @PostMapping("/file-size-check")
-    public ResponseEntity<String> fileSizeCheck(MultipartHttpServletRequest file){
-        log.info("AdminAnnounceController.fileSizeCheck");
-        return ResponseEntity.ok().body("ok");
     }
 
     // 검색
