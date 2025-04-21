@@ -91,4 +91,8 @@
 		<location>/WEB-INF/views/error/40n.jsp</location>
 	</error-page>
 
+	<session-config>
+		<session-timeout>1</session-timeout>
+	</session-config>
+
 </web-app>

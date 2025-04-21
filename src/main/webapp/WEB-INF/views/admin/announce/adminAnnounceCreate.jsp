@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 
-<c:set var="isEditMode" value="${announceDto != null}"/>
+<c:set var="isEditMode" value="${not empty announceDto.ano and announceDto.ano != 0}"/>
 <c:url var="actionUrl" value="${isEditMode ? '/admin/announces/put' : '/admin/announces'}" />
 
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
@@ -185,43 +185,29 @@
 
     // 파일 확장자 유효성 검사
     function validateFileExtensions(input) {
-        var validExtensions = ['pdf', 'xls', 'xlsx', 'txt', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+        var maxSize = 2 * 1024 * 1024; // 2MB 제한
+        var validExtensions = ['pdf', 'xls', 'xlsx', 'txt', 'doc', 'docx'];
         var files = input.files;
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
             var fileName = file.name;
             var fileExtension = fileName.split('.').pop().toLowerCase();
             if (!validExtensions.includes(fileExtension)) {
-                alert('허용된 파일 형식이 아닙니다. (PDF, 엑셀, 텍스트, 워드, 이미지 파일만 업로드 가능합니다)');
+                alert('허용된 파일 형식이 아닙니다. (PDF, 엑셀, 텍스트, 워드 파일만 업로드 가능합니다)');
                 input.value = '';  // 파일 입력 초기화
                 return false;
             }
 
-            attachedFileSizeCheck(file, input);
+
+            if (file.size > maxSize) {
+                var fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                alert('파일 "' + file.name + '"의 크기(' + fileSizeMB + 'MB)가 허용된 2MB를 초과합니다.');
+                input.value = '';
+                return false;
+            }
+
         }
         return true;
-    }
-
-    // 파일 크기 검사 함수
-    function attachedFileSizeCheck(file, input) {
-
-        var formData = new FormData();
-        formData.append("file", file);
-
-        return $.ajax({
-            url: '/admin/announces/file-size-check',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            dataType: 'json',
-            success: function (response) {
-                alert(response);
-            }, error: function (response) {
-                input.value = '';
-                var errorMsg = response.responseJSON?.errorResponse?.message || defaultErrorMsg;
-                alert(errorMsg);
-            }
-        });
     }
 
     function setToday() {
@@ -236,7 +222,6 @@
         $('#postedAtCreate').attr('min', formattedDate);
 
     }
-
 
     // 파일 번호를 삭제 리스트에 추가
     function addFileToDeleteList(fno) {

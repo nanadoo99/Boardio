@@ -88,7 +88,8 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
-!/src/main/webapp/static/image/upload/tester1.jpg
-!/src/test/
-!/src/main/resources/properties/application-oauth.properties
-!/src/main/resources/properties/application-aws.properties
+/src/main/webapp/static/image/upload/tester1.jpg
+/src/test/
+src/main/resources/properties/secure/
+/target/
+

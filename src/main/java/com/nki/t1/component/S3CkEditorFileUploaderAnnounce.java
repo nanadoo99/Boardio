@@ -1,6 +1,6 @@
 package com.nki.t1.component;
 
-import com.nki.t1.utils.AwsS3UtilsAnnounce;
+import com.nki.t1.utils.AwsS3UtilsAnnounceCkEditor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 @Component("s3CkEditorFileUploaderAnnounce")
 public class S3CkEditorFileUploaderAnnounce extends AbstractS3CkEditorFileUploader{
 
-    public S3CkEditorFileUploaderAnnounce(AwsS3UtilsAnnounce awsS3UtilsAnnounce) {
-        super(awsS3UtilsAnnounce);
+    public S3CkEditorFileUploaderAnnounce(AwsS3UtilsAnnounceCkEditor awsS3UtilsAnnounceCkEditor) {
+        super(awsS3UtilsAnnounceCkEditor);
     }
 
 }

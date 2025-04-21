@@ -23,8 +23,8 @@ import java.util.Properties;
 @Configuration
 @PropertySource("classpath:/properties/application-file.properties")
 @PropertySource("classpath:/properties/application-variable.properties")
-@PropertySource("classpath:/properties/application-oauth.properties")
-@PropertySource("classpath:/properties/application-aws.properties")
+@PropertySource("classpath:/properties/secure/application-oauth.properties")
+@PropertySource("classpath:/properties/secure/application-aws.properties")
 @EnableTransactionManagement
 @EnableScheduling
 @ComponentScan(basePackages = {"com.nki.t1.service", "com.nki.t1.dao", "com.nki.t1.utils", "com.nki.t1.component", "com.nki.t1.config", "com.nki.t1.filter", "com.nki.t1.utils"})
