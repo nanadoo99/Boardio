@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nki.t1.dao.NotificationsMapper">
+   <insert id="insertNotification" parameterType="NotificationDto">
+        <selectKey order="BEFORE" resultType="int" keyProperty="id">
+            SELECT ifnull(max(id), 0) + 1  FROM notifications
+        </selectKey>
+        INSERT INTO notifications (id, uno, type, target_parent_idx, target_child_idx , is_read, del, created_at)
+        VALUES(#{id}, #{uno}, #{type}, #{targetParentIdx}, #{targetChildIdx}, 0, 0, now())
+   </insert>
+
+    <select id="selectUnreadNotificationListByUno" parameterType="int" resultType="NotificationDto">
+        SELECT n.id         AS id
+             , n.uno        AS uno
+             , n.type       AS type
+             , n.target_parent_idx  AS targetParentIdx
+             , (CASE UPPER(n.type)
+                    WHEN "NEW_COMMENT_TO_POST"
+                        THEN (SELECT p.title FROM posts p WHERE n.target_parent_idx  = p.pno)
+                    ELSE null
+            END)            AS targetParentText
+             , n.target_child_idx  AS targetChildIdx
+             , (CASE UPPER(n.type)
+                    WHEN "NEW_COMMENT_TO_POST"
+                        THEN (SELECT c.comment FROM comments c WHERE n.target_child_idx  = c.cno)
+                    ELSE null
+            END)            AS targetChildText
+             , n.is_read    AS isRead
+             , n.created_at AS createdAt
+        FROM notifications n
+        WHERE del = 0
+        ORDER BY n.created_at DESC
+    </select>
+
+    <select id="countUnreadNotificationsByUno" resultType="int">
+        SELECT COUNT(id)
+        FROM notifications
+        WHERE uno = #{uno}
+          AND del = 0
+          AND is_read = 0
+    </select>
+
+    <select id="selectNotificationById" resultType="NotificationDto" parameterType="int">
+        SELECT id         AS id
+             , uno        AS uno
+             , type       AS type
+             , target_parent_idx  AS targetParentIdx
+             , target_child_idx  AS targetChildIdx
+             , is_read    AS isRead
+             , created_at AS createdAt
+        FROM notifications
+        WHERE id = #{id}
+          AND del = 0
+    </select>
+
+    <update id="updateToReadNotificationsByUno" parameterType="int">
+        UPDATE notifications
+        SET is_read = 1
+        WHERE uno = #{uno}
+          AND del = 0
+          AND is_read = 0
+    </update>
+
+    <delete id="deleteNotificationsById" parameterType="int">
+        DELETE FROM notifications
+        WHERE id = #{id}
+    </delete>
+
+    <!--  동일한 target으로 부터 온 알림을 지운다.  -->
+    <delete id="deleteNotificationsByTypeAndPIdx" parameterType="NotificationDto">
+        DELETE FROM notifications
+        WHERE type = #{type}
+          AND target_parent_idx = #{targetParentIdx}
+    </delete>
+
+</mapper>
