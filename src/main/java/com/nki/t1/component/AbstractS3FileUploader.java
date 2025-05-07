@@ -11,10 +11,10 @@ import java.io.IOException;
 // AbstractS3CkEditorFileUploader 참고
 // 일반 업로드 방식 + S3 저장
 @Slf4j
-public abstract class AbstractS3BaseFileUploader implements BaseFileUploader {
+public abstract class AbstractS3FileUploader implements FileUploader {
     private final AwsS3Utils awsS3Utils;
 
-    protected AbstractS3BaseFileUploader(AwsS3Utils awsS3Utils) {
+    protected AbstractS3FileUploader(AwsS3Utils awsS3Utils) {
         this.awsS3Utils = awsS3Utils;
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
 // 일반 업로드 방식 + S3 저장
 // 사용처: AnnounceServiceImpl 공지사항 내 첨부파일
 @Slf4j
-public abstract class AbstractS3BaseMultiFileUploader extends AbstractS3BaseFileUploader implements MultiFileUploader {
+public abstract class AbstractS3BaseMultiFileUploader extends AbstractS3FileUploader implements MultiFileUploader {
     private final long MAX_REQUEST_SIZE;
     private final long MAX_FILE_SIZE;
 

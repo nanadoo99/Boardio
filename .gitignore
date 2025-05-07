@@ -91,5 +91,6 @@ local.properties
 /src/main/webapp/static/image/upload/tester1.jpg
 /src/test/
 src/main/resources/properties/secure/
-/target/
+target/
 
+/target/
