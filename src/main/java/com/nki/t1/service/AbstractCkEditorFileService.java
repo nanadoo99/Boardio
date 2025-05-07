@@ -1,8 +1,8 @@
 package com.nki.t1.service;
 
-import com.nki.t1.domain.CkEditorPost;
-import com.nki.t1.component.CkEditorFileUploader;
+import com.nki.t1.component.AbstractS3CkEditorFileUploader;
 import com.nki.t1.dao.FileCkEditorDao;
+import com.nki.t1.domain.CkEditorPost;
 import com.nki.t1.dto.FileDto;
 import com.nki.t1.utils.CkEditorUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +19,10 @@ import java.util.Set;
 @Slf4j
 public abstract class AbstractCkEditorFileService implements CkEditorFileService {
     private final FileCkEditorDao fileCkEditorDao;
-    public final CkEditorFileUploader ckEditorFileUploader;
+    public final AbstractS3CkEditorFileUploader ckEditorFileUploader;
     private final long expirationPeriodSec;
 
-    protected AbstractCkEditorFileService(FileCkEditorDao fileCkEditorDao, CkEditorFileUploader ckEditorFileUploader, long expirationPeriodSec) {
+    protected AbstractCkEditorFileService(FileCkEditorDao fileCkEditorDao, AbstractS3CkEditorFileUploader ckEditorFileUploader, long expirationPeriodSec) {
         this.fileCkEditorDao = fileCkEditorDao;
         this.ckEditorFileUploader = ckEditorFileUploader;
         this.expirationPeriodSec = expirationPeriodSec;
