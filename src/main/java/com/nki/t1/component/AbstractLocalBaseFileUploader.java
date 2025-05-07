@@ -16,7 +16,7 @@ import java.nio.file.StandardCopyOption;
 // ZoldFileUtilsGeneral 참고.
 // 일반 업로드 방식 + 운영 서버 저장
 @Slf4j
-public abstract class AbstractLocalBaseFileUploader implements BaseFileUploader {
+public abstract class AbstractLocalBaseFileUploader implements FileUploader {
 
     private final String uploadDir;
     private final String backupDir;

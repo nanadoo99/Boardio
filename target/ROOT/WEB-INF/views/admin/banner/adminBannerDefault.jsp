@@ -54,6 +54,15 @@
             return false;
         }
 
+        var maxSize = 3 * 1024 * 1024; // 3MB
+
+        if (bannerImage.size > maxSize) {
+            var fileSizeMB = (bannerImage.size / (1024 * 1024)).toFixed(2);
+            alert("파일 크기가 3MB를 초과했습니다. 현재 크기: " + fileSizeMB + "MB");
+            $('#banner-image-input').val(""); // 파일 초기화
+            return false;
+        }
+
         var formData = new FormData();
         formData.append("ano", 0);
         if (bannerImage) {
