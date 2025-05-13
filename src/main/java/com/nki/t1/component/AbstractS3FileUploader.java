@@ -13,14 +13,25 @@ import java.io.IOException;
 @Slf4j
 public abstract class AbstractS3FileUploader implements FileUploader {
     private final AwsS3Utils awsS3Utils;
+    private final long MAX_FILE_SIZE;
 
+    // 파일 사이즈를 체크한다.
+    protected AbstractS3FileUploader(AwsS3Utils awsS3Utils, long maxFileSize) {
+        this.awsS3Utils = awsS3Utils;
+        this.MAX_FILE_SIZE = maxFileSize;
+    }
+
+    // 파일 사이즈를 체크하지 않는다.
     protected AbstractS3FileUploader(AwsS3Utils awsS3Utils) {
         this.awsS3Utils = awsS3Utils;
+        this.MAX_FILE_SIZE = 0;
     }
 
     @Override
     public FileDto upload(MultipartFile file) throws IOException {
-
+        if (MAX_FILE_SIZE > 0) {
+            FileUtils.fileSizeCheck(file, MAX_FILE_SIZE);
+        }
         FileDto fileDto = new FileDto();
 
         fileDto.setFile(file);
