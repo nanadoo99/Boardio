@@ -30,21 +30,12 @@ import java.util.Properties;
 @ComponentScan(basePackages = {"com.nki.t1.service", "com.nki.t1.dao", "com.nki.t1.utils", "com.nki.t1.component", "com.nki.t1.config", "com.nki.t1.filter", "com.nki.t1.utils"})
 public class RootConfig {
 
-/*    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
-        dataSource.setUrl("jdbc:log4jdbc:mysql://localhost:3306/t1?useUnicode=true&characterEncoding=utf8");
-        dataSource.setUsername("nki");
-        dataSource.setPassword("1234");
-        return dataSource;
-    }*/
 //   ===== AWS 설정 시작 =====
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
-        dataSource.setUrl("jdbc:log4jdbc:mysql://awseb-e-bbxgeqfvqg-stack-awsebrdsdatabase-ypnch0du08db.c3s8ay0m4ol5.ap-northeast-2.rds.amazonaws.com:3306/t1?useUnicode=true&characterEncoding=utf8");
+        dataSource.setUrl("jdbc:mysql://database-1.c3s8ay0m4ol5.ap-northeast-2.rds.amazonaws.com:3306/t1?useUnicode=true&characterEncoding=utf8");
         dataSource.setUsername("admin");
         dataSource.setPassword("12341234");
         return dataSource;

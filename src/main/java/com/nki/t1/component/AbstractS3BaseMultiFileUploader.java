@@ -19,7 +19,7 @@ public abstract class AbstractS3BaseMultiFileUploader extends AbstractS3FileUplo
     private final long MAX_FILE_SIZE;
 
     protected AbstractS3BaseMultiFileUploader(AwsS3Utils awsS3Utils, long maxRequestSize, long maxFileSize) {
-        super(awsS3Utils);
+        super(awsS3Utils, maxFileSize);
         this.MAX_REQUEST_SIZE = maxRequestSize;
         this.MAX_FILE_SIZE = maxFileSize;
     }

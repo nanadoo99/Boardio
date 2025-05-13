@@ -27,7 +27,7 @@ public class BannerService {
 
     public BannerService(BannerDao bannerDao,
                          AnnounceDao announceDao,
-                         @Qualifier("LocalBaseFileUploaderBanner")
+                         @Qualifier("S3BaseMultiFileUploaderBanner")
                          FileUploader fileUploader) {
         this.bannerDao = bannerDao;
         this.announceDao = announceDao;
