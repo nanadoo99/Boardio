@@ -182,7 +182,7 @@ public class UserPostController {
 
             result.put("uploaded", true);
             result.put("fileName", ckFileDto.getFileOrgNm());
-            result.put("url", ckFileDto.getWebPath());
+            result.put("url", ckFileDto.getUploadPath());
 
             return result;
         } catch (IOException e) {

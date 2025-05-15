@@ -35,4 +35,9 @@ public class FileAnnounceServiceImpl implements FileAnnounceService{
         }
         return fileDto;
     }
+
+    @Override
+    public int deleteFileListByFanoAdmin(int fano) {
+        return fileAnnounceDao.deleteFileListByFanoAdmin(fano);
+    }
 }

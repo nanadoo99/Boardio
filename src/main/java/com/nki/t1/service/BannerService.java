@@ -27,7 +27,7 @@ public class BannerService {
 
     public BannerService(BannerDao bannerDao,
                          AnnounceDao announceDao,
-                         @Qualifier("S3BaseMultiFileUploaderBanner")
+                         @Qualifier("S3BaseFileUploaderBanner")
                          FileUploader fileUploader) {
         this.bannerDao = bannerDao;
         this.announceDao = announceDao;
@@ -54,6 +54,8 @@ public class BannerService {
         comparePostAt(bannerDto);
         // 파일 업로드
         bannerDto.setFileDto(fileUploader.upload(bannerDto.getImage()));
+        System.out.println("bannerDto = " + bannerDto);
+        
         // 파일 업로드 db 저장
         bannerDao.insertBanner(bannerDto);
     }

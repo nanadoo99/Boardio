@@ -77,6 +77,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         return announceDao.selectAnnounceAdmin(ano);
     }
 
+    // 공지 생성
     @Override
     @Transactional
     public void createAnnounce(AnnounceDto announceDto) throws IOException {

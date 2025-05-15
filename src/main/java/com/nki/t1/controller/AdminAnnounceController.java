@@ -12,15 +12,18 @@ import com.nki.t1.dto.UserDto;
 import com.nki.t1.exception.InvalidFileException;
 import com.nki.t1.service.AnnounceService;
 import com.nki.t1.service.FileAnnounceService;
+import com.nki.t1.utils.AwsS3Utils;
+import com.nki.t1.utils.AwsS3UtilsAnnounceAttachment;
 import com.nki.t1.utils.DateTimeFormatUtils;
 import com.nki.t1.utils.SessionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +48,7 @@ import java.util.Map;
 public class AdminAnnounceController {
 
     private final AnnounceService announceService;
+    private final AwsS3Utils awsS3Utils;
     private final FileAnnounceService fileAnnounceService;
     private final SessionUtils sessionUtils;
 
@@ -55,10 +59,12 @@ public class AdminAnnounceController {
 
     @Autowired
     public AdminAnnounceController(AnnounceService announceService,
+                                   AwsS3UtilsAnnounceAttachment awsS3Utils,
                                    FileAnnounceService fileAnnounceService,
                                    SessionUtils sessionUtils,
                                    MessageSource messageSource) {
         this.announceService = announceService;
+        this.awsS3Utils = awsS3Utils;
         this.fileAnnounceService = fileAnnounceService;
         this.sessionUtils = sessionUtils;
         this.messageSource = messageSource;
@@ -141,12 +147,15 @@ public class AdminAnnounceController {
         }
 
         FileDto fileDto = fileAnnounceService.selectFileByFnoAdmin(fano);
-        UrlResource resource = new UrlResource("file:" + fileDto.getUploadFullPath());
+        System.out.println("fileDto; = " + fileDto);
+
+        InputStreamResource resource = new InputStreamResource(awsS3Utils.downloadObject(fileDto.getUploadPath()));
         String encodedOrgName = UriUtils.encode(fileDto.getFileOrgNm(), StandardCharsets.UTF_8);
         String contentDisposition = "attachment; filename=\"" + encodedOrgName + "\"";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
 
@@ -178,11 +187,27 @@ public class AdminAnnounceController {
     // 게시글 수정
     @PostMapping("/put")
     public String editPost(@Valid @ModelAttribute("announceDto") AnnounceDto announceDto,
-                           BindingResult result) throws IOException {
+                           BindingResult result,
+                           @RequestParam(value = "fanoList", required = false) List<Integer> fanoList) throws IOException {
         if (result.hasErrors()) {
             return "admin.announce.adminAnnounceCreate";
         }
+        // 권한체크
         sessionUtils.checkAdminAndWriter(announceService.selectAnnounceAdmin(announceDto.getAno()));
+
+        // 선택 파일 삭제
+        if(fanoList != null && !fanoList.isEmpty()) {
+            for(Integer fano : fanoList) {
+                // 파일 정보
+                FileDto fileDto = fileAnnounceService.selectFileByFnoAdmin(fano);
+                // 파일서버 삭제
+                awsS3Utils.deleteObject(fileDto);
+                // db 삭제
+                fileAnnounceService.deleteFileListByFanoAdmin(fano);
+            }
+        }
+
+        // 공지 업데이트
         announceService.updateAnnounce(announceDto);
         return "redirect:/admin/announces/" + announceDto.getAno();
     }
@@ -210,7 +235,7 @@ public class AdminAnnounceController {
 
             result.put("uploaded", true);
             result.put("fileName", ckFileDto.getFileOrgNm());
-            result.put("url", ckFileDto.getWebPath());
+            result.put("url", ckFileDto.getUploadPath());
 
             return result;
         } catch (IOException e) {

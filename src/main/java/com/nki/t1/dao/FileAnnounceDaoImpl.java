@@ -5,9 +5,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public class FileAnnounceDaoImpl implements FileAnnounceDao {
@@ -43,6 +41,11 @@ public class FileAnnounceDaoImpl implements FileAnnounceDao {
     @Override
     public int deleteFileListByAnoAdmin(int ano) {
         return sqlSession.update(namespace + "deleteFileListByAnoAdmin", ano);
+    }
+
+    @Override
+    public int deleteFileListByFanoAdmin(int fano) {
+        return sqlSession.update(namespace + "deleteFileListByFanoAdmin", fano);
     }
 
     @Override

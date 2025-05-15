@@ -70,6 +70,13 @@
         WHERE ano = #{ano}
     </update>
 
+    <update id="deleteFileListByFanoAdmin" parameterType="int">
+        UPDATE file_announce
+        SET del        = 1,
+            deleted_at = now()
+        WHERE fano = #{fano}
+    </update>
+
     <update id="deleteFileListByFnoListAdmin" parameterType="list">
         UPDATE file_announce
         SET del        = 1,
