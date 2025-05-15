@@ -20,7 +20,7 @@
             </div>
 
             <div class="mb-3">
-                <img src="/public/banners/${bannerDto.fileDto.fileUidNm}" class="d-block w-100 img-fluid"
+                <img src="${bannerDto.fileDto.uploadPath}" class="d-block w-100 img-fluid"
                      alt="기본 배너 이미지">
             </div>
         </div>
