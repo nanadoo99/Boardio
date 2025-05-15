@@ -63,14 +63,15 @@
         <label for="attachedFiles">첨부파일</label>
         <!-- 파일 업로드는 form 태그 내 일반 input 태그를 사용 -->
         <input type="file" class="form-control" id="attachedFiles" name="attachedFiles" multiple/>
+
         <c:if test="${isEditMode}">
             <c:forEach var="fileDto" items="${announceDto.fileDtoList}">
                 <div class="file-item">
-                    <input type="checkbox" class="delete-file-checkbox" data-fno="${fileDto.fno}"
-                           value="${fileDto.fno}"> ${fileDto.fileOrgNm}
+                    <label>
+                    ${fileDto.fileOrgNm} 삭제: <input type="checkbox" class="delete-file-checkbox" name="fanoList" value="${fileDto.fno}"/>
+                    </label>
                 </div>
             </c:forEach>
-            <input type="hidden" id="deleteFiles" name="fnoList">
         </c:if>
     </div>
 

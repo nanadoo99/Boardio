@@ -1,3 +1,4 @@
+/*
 package com.nki.t1.component;
 
 import com.nki.t1.domain.ErrorType;
@@ -115,3 +116,4 @@ public abstract class AbstractLocalBaseFileUploader implements FileUploader {
     }
 
 }
+*/

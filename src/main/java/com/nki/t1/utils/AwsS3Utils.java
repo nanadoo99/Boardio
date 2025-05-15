@@ -2,15 +2,16 @@ package com.nki.t1.utils;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.IOUtils;
 import com.nki.t1.domain.ErrorType;
 import com.nki.t1.dto.FileDto;
 import com.nki.t1.exception.InvalidFileException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,8 +32,9 @@ public abstract class AwsS3Utils {
     }
 
     // 클라이언트 엔드 포인트 제공
-    public String getEndPointPath() {
-        return "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + fileDir;
+    public String getEndPointPath(String keyName) {
+        String encodedKey = URLEncoder.encode(keyName, StandardCharsets.UTF_8);
+        return "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + encodedKey;
     }
 
     // 전체 S3 키반환
@@ -45,18 +47,33 @@ public abstract class AwsS3Utils {
     }
 
     // 업로드
-    public String uploadObject(FileDto fileDto) throws IOException {
+    public void uploadObject(FileDto fileDto) throws IOException {
         String keyName = getDecodedKeyName(fileDto.getFileUidNm());
         // 1. bucket name, 2. key : full path to the file 3. file : new File로 생성한 file instance
         // 2. PutObjectRequest로 구현 가능
         log.info("Uploading object " + keyName);
+
         s3Client.putObject(new PutObjectRequest(bucketName, keyName, fileDto.getFile().getInputStream(), null));
 
-        return getDecodedS3Url(keyName);
+        fileDto.setFileUidNm(keyName);
+        fileDto.setUploadPath(getEndPointPath(keyName));
+
+        System.out.println("AwsS3Utils.uploadObject.fileDto = " + fileDto);
+    }
+
+    // 업로드-2 원래 이름 및 uuid 처리를 동시에 한다.
+    public FileDto uploadObject(MultipartFile file) throws IOException {
+        FileDto fileDto = new FileDto();
+
+        fileDto.setFile(file);
+        fileDto.setFileOrgNm(file.getOriginalFilename());
+        fileDto.setFileUidNm(FileUtils.getUploadedName(file));
+
+        uploadObject(fileDto);
+        return fileDto;
     }
 
     private String getDecodedS3Url(String keyName) {
-        // getUrl()은 실제 S3에 저장된 객체의 keyName을 기반으로 URL을 생성합니다.
         URL s3Url = s3Client.getUrl(bucketName, keyName);
         // URL의 path 부분 >> UTF-8 기준으로 디코딩
         String decodedPath = URLDecoder.decode(s3Url.getPath(), StandardCharsets.UTF_8);
@@ -64,12 +81,17 @@ public abstract class AwsS3Utils {
         if (s3Url.getQuery() != null) {
             decodedUrl += "?" + s3Url.getQuery();
         }
+        System.out.println("decodedUrl = " + decodedUrl);
         return decodedUrl;
     }
 
-    // 삭제
-    public void deleteObject( String storedFileName) {
-        String keyName = getKeyName(storedFileName);
+    private String decodeKeyName(String keyName) {
+        return URLDecoder.decode(keyName, StandardCharsets.UTF_8);
+    }
+
+    // 삭제 - HtmlTag(CkEditor)
+    public void deleteObjectForHtmlTag(String storedFileName) {
+        String keyName = getKeyName(decodeKeyName(storedFileName));
         log.info("Deleting object " + keyName);
         if(!s3Client.doesObjectExist(bucketName, keyName)) {
             log.debug("S3 Url: " + s3Client.getUrl(bucketName, keyName));
@@ -78,19 +100,23 @@ public abstract class AwsS3Utils {
         s3Client.deleteObject(new DeleteObjectRequest(bucketName, keyName));
     }
 
-    // 다운로드
-    public byte[] downloadObject(String uuidName) {
-        log.info("start of s3 download");
-        S3Object s3Object = s3Client.getObject(bucketName, uuidName);
-        log.info("s3Object = " + s3Object);
-        S3ObjectInputStream inputStream = s3Object.getObjectContent();
-        try {
-            byte[] content = IOUtils.toByteArray(inputStream);
-            return content;
-        } catch (IOException e) {
-            // e.printStackTrace();
-            throw new IllegalStateException("aws s3 다운로드 error");
+    // 일반 삭제
+    public void deleteObject(FileDto fileDto) {
+        String keyName = decodeKeyName(fileDto.getFileUidNm());
+        log.info("Deleting object " + keyName);
+        if(!s3Client.doesObjectExist(bucketName, keyName)) {
+            log.debug("S3 Url: " + s3Client.getUrl(bucketName, keyName));
+            throw new InvalidFileException(ErrorType.FILE_NOT_FOUND,  "파일명: " + keyName);
         }
+        s3Client.deleteObject(new DeleteObjectRequest(bucketName, keyName));
+    }
+
+    // 다운로드
+    public S3ObjectInputStream downloadObject(String uploadPath) {
+        log.info("start of s3 download");
+        S3Object s3Object = s3Client.getObject(bucketName, uploadPath);
+        log.info("s3Object = " + s3Object);
+        return s3Object.getObjectContent();
     }
 
     // 만료 파일 반환

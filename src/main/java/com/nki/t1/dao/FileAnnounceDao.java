@@ -4,7 +4,6 @@ import com.nki.t1.dto.FileDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface FileAnnounceDao {
@@ -14,5 +13,6 @@ public interface FileAnnounceDao {
     List<FileDto> selectFileListByFnoListAdmin(List<Integer> fnoList);
     List<FileDto> selectFileListByAnoAdmin(int fano);
     int deleteFileListByAnoAdmin(int ano);
+    int deleteFileListByFanoAdmin(int fano);
     int deleteFileListByFnoListAdmin(List<Integer> fnoList);
 }

@@ -625,17 +625,16 @@
                 $('#announce-postedAt').val(bannerDto.formattedAnnouncePostedAtTime);
                 $('#announce-link').show();
 
-                // $('#banner-upload-thumbnail').attr('src', "/t1/upload/banner/" + bannerDto.fileDto.fileUidNm);
-                $('#banner-upload-thumbnail').attr('src', "/public/banners/" + bannerDto.fileDto.fileUidNm);
+                $('#banner-upload-thumbnail').attr('src', bannerDto.fileDto.uploadPath);
                 $('#banner-upload-image-name').text(bannerDto.fileDto.fileOrgNm);
                 $('#image-org').show();
 
                 // $('#banner-read-thumbnail').attr('src', "/t1/upload/banner/" + bannerDto.fileDto.fileUidNm);
-                $('#banner-read-thumbnail').attr('src', "/public/banners/" + bannerDto.fileDto.fileUidNm);
+                $('#banner-read-thumbnail').attr('src', bannerDto.fileDto.uploadPath);
                 $('#banner-read-image-name').text(bannerDto.fileDto.fileOrgNm);
 
                 $('#banner-image-download').prop('href', '<c:url value="/admin/banners/"/>' + id + '/image');
-                $('#banner-memo').val(bannerDto.memo)
+                $('#banner-memo').val(bannerDto.memo);
 
                 $('select[name="option1"]').val('ano');
                 $('input[name="keyword"]').val(bannerDto.ano);

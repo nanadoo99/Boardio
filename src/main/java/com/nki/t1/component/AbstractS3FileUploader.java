@@ -32,20 +32,14 @@ public abstract class AbstractS3FileUploader implements FileUploader {
         if (MAX_FILE_SIZE > 0) {
             FileUtils.fileSizeCheck(file, MAX_FILE_SIZE);
         }
-        FileDto fileDto = new FileDto();
 
-        fileDto.setFile(file);
-        fileDto.setFileOrgNm(file.getOriginalFilename());
-        fileDto.setFileUidNm(FileUtils.getUploadedName(file));
-        String endPointUrl = awsS3Utils.uploadObject(fileDto);
-        fileDto.setWebPath(endPointUrl);
-
-        return fileDto;
+        return awsS3Utils.uploadObject(file);
     }
+
 
     @Override
     public void delete(FileDto fileDto, boolean backup) throws IOException {
-        awsS3Utils.deleteObject(fileDto.getFileUidNm());
+        awsS3Utils.deleteObject(fileDto);
     }
 
 }

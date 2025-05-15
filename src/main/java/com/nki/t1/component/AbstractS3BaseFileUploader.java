@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 
 // ZoldFileUtilsGeneral 참고
 // 일반 업로드 방식 + S3 저장
-// 사용처: AnnounceServiceImpl 공지사항 내 첨부파일
 @Slf4j
 public abstract class AbstractS3BaseFileUploader extends AbstractS3FileUploader{
 

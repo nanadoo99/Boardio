@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-// ZoldFileUtilsGeneral 참고
 // 일반 업로드 방식 + S3 저장
 // 사용처: AnnounceServiceImpl 공지사항 내 첨부파일
 @Slf4j

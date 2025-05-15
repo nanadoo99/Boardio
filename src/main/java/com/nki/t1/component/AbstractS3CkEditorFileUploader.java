@@ -33,7 +33,7 @@ public abstract class AbstractS3CkEditorFileUploader extends AbstractS3FileUploa
         // 서버이미지가 db set에 없으면 삭제
         for (String serverFile : serverFileSet) {
             if (!dbFileNameSet.contains(serverFile)) {
-                awsS3Utils.deleteObject(serverFile);
+                awsS3Utils.deleteObjectForHtmlTag(serverFile);
             }
         }
     }

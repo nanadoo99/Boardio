@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class AwsS3UtilsBanner extends AwsS3Utils {
     public AwsS3UtilsBanner(AmazonS3 s3Client,
                             @Value("${aws.s3.bucketname}") String bucketName,
-                            @Value("${file.upload.directory.announce.attachment.aws}") String fileDir) {
+                            @Value("${file.upload.directory.banner.aws}") String fileDir) {
         super(s3Client, bucketName, fileDir);
     }
 }

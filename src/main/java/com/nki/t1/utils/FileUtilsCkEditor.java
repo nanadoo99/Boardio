@@ -1,3 +1,4 @@
+/*
 package com.nki.t1.utils;
 
 import com.nki.t1.domain.CkEditorPost;
@@ -276,3 +277,4 @@ public abstract class FileUtilsCkEditor {
     }
 
 }
+*/

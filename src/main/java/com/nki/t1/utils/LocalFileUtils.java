@@ -1,3 +1,4 @@
+/*
 package com.nki.t1.utils;
 
 import com.nki.t1.domain.ErrorType;
@@ -27,3 +28,4 @@ public class LocalFileUtils {
 
     // 만료 파일 체크..?
 }
+*/

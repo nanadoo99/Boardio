@@ -1,3 +1,4 @@
+/*
 package com.nki.t1.component;
 
 import com.nki.t1.utils.SizeParser;
@@ -22,3 +23,4 @@ public class LocalBaseFileUploaderBanner extends AbstractLocalBaseFileUploader {
     }
 
 }
+*/
