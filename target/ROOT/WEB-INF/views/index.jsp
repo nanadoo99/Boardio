@@ -15,10 +15,10 @@
                 <div style="height: 600px;" class="carousel-item d-flex justify-content-center align-items-center<c:if test='${status.index == 0}'>active</c:if>">
                     <c:choose>
                         <c:when test="${bannerDto.id != 0}"> <!-- 디폴트 배너가 아닐 경우 -->
-                            <img src='<c:url value="/public/banners/${bannerDto.fileDto.fileUidNm}"/>' class="d-block banner-img" alt="배너 이미지" onclick="location.href= contextPath + '/user/announces/' + ${bannerDto.ano} + '?page=1'">
+                            <img src='<c:url value="${bannerDto.fileDto.uploadPath}"/>' class="d-block banner-img" alt="배너 이미지" onclick="location.href= contextPath + '/user/announces/' + ${bannerDto.ano} + '?page=1'">
                         </c:when>
                         <c:otherwise> <!-- 디폴트 배너일 경우 - 링크가 없다. -->
-                            <img src="/public/banners/${bannerDto.fileDto.fileUidNm}" class="d-block banner-img" alt="배너 이미지">
+                            <img src="${bannerDto.fileDto.uploadPath}   " class="d-block banner-img" alt="배너 이미지">
                         </c:otherwise>
                     </c:choose>
                 </div>
